@@ -8,7 +8,7 @@ using PetShop.API.Services.Pet;
 
 //using PetShop.API.Services.Pet;
 using static PetShop.API.Repository.Interface.IClienteRepository;
-using static PetShop.API.Repository.PetRepository;
+using static PetShop.API.Repository.PetModeloRepository;
 using IClienteRepository = PetShop.API.Repository.Interface.IClienteRepository.IClienteRepository;
 
 
@@ -25,10 +25,10 @@ builder.Services.AddSwaggerGen();
 
 // Services
 builder.Services.AddScoped<IClienteService, ClienteService>();
-builder.Services.AddScoped<IPetService, PetService>();
+builder.Services.AddScoped<IPetModeloService, PetModeloService>();
 
 //Repositories
-builder.Services.AddScoped<IPetRepository, PetRepository>();
+builder.Services.AddScoped<IPetModeloRepository, PetModeloRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 
 //AutoMapper

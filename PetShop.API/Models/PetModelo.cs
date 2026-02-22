@@ -1,9 +1,6 @@
-﻿using PetShop.API.Dto.Vinculo;
-using PetShop.API.Models;
-
-namespace PetShop.API.Dto.Pet
+﻿namespace PetShop.API.Models
 {
-    public class PetEdicaoDto
+    public class PetModelo
     {
         public int Id { get; set; }
         public string Nome { get; set; }
@@ -16,6 +13,9 @@ namespace PetShop.API.Dto.Pet
 
 
         public int ClienteId { get; set; }
+
+        // RELACIONAMENTO DE BANCO DE DADOS
+        public virtual ClienteModel Cliente { get; set; }
 
     }
 }

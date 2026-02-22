@@ -9,16 +9,16 @@ namespace PetShop.API.Controllers
     [ApiController]
     public class PetController : ControllerBase
     {
-        private readonly IPetService _petService;
+        private readonly IPetModeloService _petService;
 
-        public PetController(IPetService petService)
+        public PetController(IPetModeloService petService)
         {
             _petService = petService;
         }
 
         // Listar todos os pets
         [HttpGet("ListarPets")]
-        public async Task<ActionResult<List<PetModel>>> ListarPets()
+        public async Task<ActionResult<List<PetModelo>>> ListarPets()
         {
             var pets = await _petService.ListarPets();
             return Ok(pets);
@@ -26,7 +26,7 @@ namespace PetShop.API.Controllers
 
         // Buscar pet por ID
         [HttpGet("BuscarPetPorId/{idPet}")]
-        public async Task<ActionResult<PetModel>> BuscarPetPorId(int idPet)
+        public async Task<ActionResult<PetModelo>> BuscarPetPorId(int idPet)
         {
             var pet = await _petService.BuscarPetPorId(idPet);
             if (pet == null)
@@ -37,7 +37,7 @@ namespace PetShop.API.Controllers
 
         // Buscar pets de um cliente
         [HttpGet("BuscarPetPorIdCliente/{idCliente}")]
-        public async Task<ActionResult<List<PetModel>>> BuscarPetPorIdCliente(int idCliente)
+        public async Task<ActionResult<List<PetModelo>>> BuscarPetPorIdCliente(int idCliente)
         {
             var pets = await _petService.BuscarPetPorIdCliente(idCliente);
             if (pets == null || !pets.Any())
@@ -48,7 +48,7 @@ namespace PetShop.API.Controllers
 
         // Criar pet
         [HttpPost("CriarPet")]
-        public async Task<ActionResult<PetModel>> CriarPet(PetCriacaoDto petCriacaoDto)
+        public async Task<ActionResult<PetModelo>> CriarPet(PetModeloDto petCriacaoDto)
         {
             var pet = await _petService.CriarPet(petCriacaoDto);
             return CreatedAtAction(nameof(BuscarPetPorId), new { idPet = pet.Id }, pet);
@@ -56,7 +56,7 @@ namespace PetShop.API.Controllers
 
         // Editar pet
         [HttpPut("EditarPet")]
-        public async Task<ActionResult<PetModel>> EditarPet(PetEdicaoDto petEdicaoDto)
+        public async Task<ActionResult<PetModelo>> EditarPet(PetModeloDto petEdicaoDto)
         {
             var pet = await _petService.EditarPet(petEdicaoDto);
             if (pet == null)

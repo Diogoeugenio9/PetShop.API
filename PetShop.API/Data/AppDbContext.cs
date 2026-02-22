@@ -13,7 +13,7 @@ namespace PetShop.API.Data
         }
 
         public DbSet<ClienteModel> Clientes { get; set; }
-        public DbSet<PetModel> Pets { get; set; }
+        public DbSet<PetModelo> PetsModel { get; set; }    //Talvez devo mudar o nome para PetModelo
         //public DbSet<LoginModel> Logins { get; set; }
 
 
