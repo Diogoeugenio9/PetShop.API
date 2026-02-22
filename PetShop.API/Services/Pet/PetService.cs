@@ -16,88 +16,62 @@ namespace PetShop.API.Services.Pet
             _mapper = mapper;
         }
 
-        public async Task<ResponseModel<List<PetModel>>> ListarPets()
+        // Listar todos os pets
+        public async Task<List<PetModel>> ListarPets()
         {
-            var resposta = new ResponseModel<List<PetModel>>();
-            resposta.Dados = await _repository.GetAll();
-            resposta.Mensagem = "Pets listados com sucesso!";
-            return resposta;
+            return await _repository.GetAll();
         }
-
-        public async Task<ResponseModel<PetModel>> BuscarPetPorId(int idPet)
+        // Buscar pet por ID
+        public async Task<PetModel?> BuscarPetPorId(int idPet)
         {
-            var resposta = new ResponseModel<PetModel>();
-            var pet = await _repository.GetById(idPet);
-
-            if (pet == null)
-            {
-                resposta.Mensagem = "Pet não encontrado!";
-                return resposta;
-            }
-
-            resposta.Dados = pet;
-            resposta.Mensagem = "Pet localizado!";
-            return resposta;
+            return await _repository.GetById(idPet);
         }
-
-        public async Task<ResponseModel<List<PetModel>>> BuscarPetPorIdCliente(int idCliente)
+        // Buscar pets de um cliente
+        public async Task<List<PetModel>> BuscarPetPorIdCliente(int idCliente)
         {
-            var resposta = new ResponseModel<List<PetModel>>();
-            resposta.Dados = await _repository.GetByClienteId(idCliente);
-            resposta.Mensagem = "Pets do cliente listados!";
-            return resposta;
+            return await _repository.GetByClienteId(idCliente);
         }
-
-        public async Task<ResponseModel<List<PetModel>>> CriarPet(PetCriacaoDto dto)
+        // Criar pet
+        public async Task<PetModel> CriarPet(PetCriacaoDto dto)
         {
-            var resposta = new ResponseModel<List<PetModel>>();
             var pet = _mapper.Map<PetModel>(dto);
+            pet.DataCadastro = DateTime.Now;
+            pet.Ativo = true;
 
             await _repository.Add(pet);
-
-            resposta.Dados = await _repository.GetAll();
-            resposta.Mensagem = "Pet criado com sucesso!";
-            return resposta;
+            return pet;
         }
 
-        public async Task<ResponseModel<List<PetModel>>> EditarPet(PetEdicaoDto dto)
+        // Editar pet
+        public async Task<PetModel?> EditarPet(PetEdicaoDto dto)
         {
-            var resposta = new ResponseModel<List<PetModel>>();
             var pet = await _repository.GetById(dto.Id);
 
             if (pet == null)
-            {
-                resposta.Mensagem = "Pet não encontrado!";
-                return resposta;
-            }
+                return null;
 
             _mapper.Map(dto, pet);
             await _repository.Update(pet);
 
-            resposta.Dados = await _repository.GetAll();
-            resposta.Mensagem = "Pet atualizado com sucesso!";
-            return resposta;
+            return pet;
         }
 
-        public async Task<ResponseModel<List<PetModel>>> ExcluirPet(int idPet)
+        // Excluir pet         
+        public async Task<bool> ExcluirPet(int idPet)
         {
-            var resposta = new ResponseModel<List<PetModel>>();
             var pet = await _repository.GetById(idPet);
 
             if (pet == null)
-            {
-                resposta.Mensagem = "Pet não encontrado!";
-                return resposta;
-            }
+                return false;
 
             await _repository.Delete(pet);
+            return true;
 
-            resposta.Dados = await _repository.GetAll();
-            resposta.Mensagem = "Pet removido com sucesso!";
-            return resposta;
         }
 
-      
+
+
+
 
     }
 }

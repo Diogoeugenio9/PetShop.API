@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using PetShop.API.Dto.Cliente;
+﻿using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Pet;
 using PetShop.API.Models;
-using PetShop.API.Services.Cliente;
 using PetShop.API.Services.Pet;
 
 namespace PetShop.API.Controllers
@@ -12,57 +9,71 @@ namespace PetShop.API.Controllers
     [ApiController]
     public class PetController : ControllerBase
     {
+        private readonly IPetService _petService;
 
-        private readonly IPetService _petInterface;
-        public PetController(IPetService petInterface)
+        public PetController(IPetService petService)
         {
-            _petInterface = petInterface;
+            _petService = petService;
         }
 
+        // Listar todos os pets
         [HttpGet("ListarPets")]
-        public async Task<ActionResult<ResponseModel<List<PetModel>>>> ListarPets()
+        public async Task<ActionResult<List<PetModel>>> ListarPets()
         {
-            var pets = await _petInterface.ListarPets();
+            var pets = await _petService.ListarPets();
             return Ok(pets);
         }
 
+        // Buscar pet por ID
         [HttpGet("BuscarPetPorId/{idPet}")]
-        public async Task<ActionResult<ResponseModel<PetModel>>> BuscarPetPorId(int idPet)
+        public async Task<ActionResult<PetModel>> BuscarPetPorId(int idPet)
         {
-            var pet = await _petInterface.BuscarPetPorId(idPet);
+            var pet = await _petService.BuscarPetPorId(idPet);
+            if (pet == null)
+                return NotFound("Pet não encontrado");
+
             return Ok(pet);
         }
 
+        // Buscar pets de um cliente
         [HttpGet("BuscarPetPorIdCliente/{idCliente}")]
-        public async Task<ActionResult<ResponseModel<ClienteModel>>> BuscarPetPorIdCliente(int idCliente)
+        public async Task<ActionResult<List<PetModel>>> BuscarPetPorIdCliente(int idCliente)
         {
-            var pet = await _petInterface.BuscarPetPorIdCliente(idCliente);
+            var pets = await _petService.BuscarPetPorIdCliente(idCliente);
+            if (pets == null || !pets.Any())
+                return NotFound("Nenhum pet encontrado para este cliente");
+
+            return Ok(pets);
+        }
+
+        // Criar pet
+        [HttpPost("CriarPet")]
+        public async Task<ActionResult<PetModel>> CriarPet(PetCriacaoDto petCriacaoDto)
+        {
+            var pet = await _petService.CriarPet(petCriacaoDto);
+            return CreatedAtAction(nameof(BuscarPetPorId), new { idPet = pet.Id }, pet);
+        }
+
+        // Editar pet
+        [HttpPut("EditarPet")]
+        public async Task<ActionResult<PetModel>> EditarPet(PetEdicaoDto petEdicaoDto)
+        {
+            var pet = await _petService.EditarPet(petEdicaoDto);
+            if (pet == null)
+                return NotFound("Pet não encontrado");
+
             return Ok(pet);
         }
 
-        [HttpPost("CriarPet")]
-        public async Task<ActionResult<ResponseModel<List<PetModel>>>> CriarPet(PetCriacaoDto petCriacaoDto)
+        // Excluir pet
+        [HttpDelete("ExcluirPet/{idPet}")]
+        public async Task<IActionResult> ExcluirPet(int idPet)
         {
-            var pets = await _petInterface.CriarPet(petCriacaoDto);
-            return Ok(pets);
-        }
+            var sucesso = await _petService.ExcluirPet(idPet);
+            if (!sucesso)
+                return NotFound("Pet não encontrado");
 
-        [HttpPut("EditarPet")]
-        public async Task<ActionResult<ResponseModel<List<PetModel>>>> EditarPet(PetEdicaoDto petEdicaoDto)
-        {
-            var pets = await _petInterface.EditarPet(petEdicaoDto);
-            return Ok(pets);
-        }
-
-        [HttpDelete("ExcluirPet")]
-        public async Task<ActionResult<ResponseModel<List<PetModel>>>> ExcluirPet(int idPet)
-        {
-            var pets = await _petInterface.ExcluirPet(idPet);
-            return Ok(pets);
+            return NoContent();
         }
     }
-
-
-
-
 }

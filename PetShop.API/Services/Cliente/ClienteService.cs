@@ -17,92 +17,63 @@ namespace PetShop.API.Services.Cliente
             _mapper = mapper;
         }
 
-        public async Task<ResponseModel<List<ClienteModel>>> ListarClientes()
+        // Listar todos os clientes
+         public async Task<List<ClienteModel>> ListarClientes() 
         {
-            var resposta = new ResponseModel<List<ClienteModel>>();
-            resposta.Dados = await _repository.GetAll();
-            resposta.Mensagem = "Clientes listados com sucesso!";
-            return resposta;
+            return await _repository.GetAll(); 
         }
 
-        public async Task<ResponseModel<ClienteModel>> BuscarClientePorId(int idCliente)
+        //Buscar cleinte por Id
+        public async Task<ClienteModel?> BuscarClientePorId(int idCliente)
         {
-            var resposta = new ResponseModel<ClienteModel>();
-            var cliente = await _repository.GetById(idCliente);
-
-            if (cliente == null)
-            {
-                resposta.Mensagem = "Cliente não encontrado!";
-                return resposta;
-            }
-
-            resposta.Dados = cliente;
-            resposta.Mensagem = "Cliente localizado!";
-            return resposta;
+            return await _repository.GetById(idCliente);
         }
 
-        public async Task<ResponseModel<ClienteModel>> BuscarClientePorIdPet(int idPet)
+
+        // Buscar cliente pelo ID do Pet
+         public async Task<ClienteModel?> BuscarClientePorIdPet(int idPet)
         {
-            var resposta = new ResponseModel<ClienteModel>();
-            var cliente = await _repository.GetByPetId(idPet);
-
-            if (cliente == null)
-            {
-                resposta.Mensagem = "Cliente não encontrado!";
-                return resposta;
-            }
-
-            resposta.Dados = cliente;
-            resposta.Mensagem = "Cliente localizado!";
-            return resposta;
+            return await _repository.GetByPetId(idPet);
         }
 
-        public async Task<ResponseModel<List<ClienteCriacaoDto>>> CriarCliente(ClienteCriacaoDto dto)
+        public async Task<ClienteModel> CriarCliente(ClienteCriacaoDto dto)
         {
-            var resposta = new ResponseModel<List<ClienteCriacaoDto>>();
             var cliente = _mapper.Map<ClienteModel>(dto);
-
             cliente.DataCadastro = DateTime.Now;
             cliente.Ativo = true;
 
             await _repository.Add(cliente);
-
-            resposta.Mensagem = "Cliente criado com sucesso!";
-            return resposta;
+            return cliente;
         }
 
-        public async Task<ResponseModel<List<ClienteEdicaoDto>>> EditarCliente(ClienteEdicaoDto dto)
-        {
-            var resposta = new ResponseModel<List<ClienteEdicaoDto>>();
-            var cliente = await _repository.GetById(dto.Id);
 
-            if (cliente == null)
-            {
-                resposta.Mensagem = "Cliente não encontrado!";
-                return resposta;
-            }
+        // Editar cliente     
+         public async Task<ClienteModel?> EditarCliente(ClienteEdicaoDto dto)
+        { 
+            var cliente = await _repository.GetById(dto.Id);
+            
+            if (cliente == null)             
+                return null;
 
             _mapper.Map(dto, cliente);
             await _repository.Update(cliente);
 
-            resposta.Mensagem = "Cliente atualizado com sucesso!";
-            return resposta;
+            return cliente; 
         }
 
-        public async Task<ResponseModel<List<ClienteModel>>> ExcluirCliente(int idCliente)
+
+        // Excluir cliente
+        public async Task<bool> ExcluirCliente(int idCliente)
         {
-            var resposta = new ResponseModel<List<ClienteModel>>();
             var cliente = await _repository.GetById(idCliente);
 
-            if (cliente == null)
-            {
-                resposta.Mensagem = "Cliente não encontrado!";
-                return resposta;
-            }
-
+            if (cliente == null) 
+                return false;
+            
             await _repository.Delete(cliente);
-            resposta.Mensagem = "Cliente removido com sucesso!";
-            return resposta;
+            return true; 
+
+
         }
     }
 }

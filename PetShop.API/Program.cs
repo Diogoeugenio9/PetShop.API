@@ -5,6 +5,8 @@ using PetShop.API.Repository;
 using PetShop.API.Repository.Interface;
 using PetShop.API.Services.Cliente;
 using PetShop.API.Services.Pet;
+
+//using PetShop.API.Services.Pet;
 using static PetShop.API.Repository.Interface.IClienteRepository;
 using static PetShop.API.Repository.PetRepository;
 using IClienteRepository = PetShop.API.Repository.Interface.IClienteRepository.IClienteRepository;

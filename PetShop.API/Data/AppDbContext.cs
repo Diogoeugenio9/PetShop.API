@@ -14,7 +14,8 @@ namespace PetShop.API.Data
 
         public DbSet<ClienteModel> Clientes { get; set; }
         public DbSet<PetModel> Pets { get; set; }
-        public DbSet<PetModel> Login { get; set; }
+        //public DbSet<LoginModel> Logins { get; set; }
+
 
     }
 }

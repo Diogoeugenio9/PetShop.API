@@ -6,13 +6,13 @@ namespace PetShop.API.Services.Cliente
     public interface IClienteService
     {
         // Consultas
-        Task<ResponseModel<List<ClienteModel>>> ListarClientes();
-        Task<ResponseModel<ClienteModel>> BuscarClientePorId(int idCliente);
-        Task<ResponseModel<ClienteModel>> BuscarClientePorIdPet(int idPet);
-
+         Task<List<ClienteModel>> ListarClientes();
+        Task<ClienteModel?> BuscarClientePorId(int idCliente);
+        Task<ClienteModel?> BuscarClientePorIdPet(int idPet); 
+        
         // Comandos
-        Task<ResponseModel<List<ClienteCriacaoDto>>> CriarCliente(ClienteCriacaoDto clienteCriacaoDto);
-        Task<ResponseModel<List<ClienteEdicaoDto>>> EditarCliente(ClienteEdicaoDto clienteEdicaoDto);
-        Task<ResponseModel<List<ClienteModel>>> ExcluirCliente(int idCliente);
+         Task<ClienteModel> CriarCliente(ClienteCriacaoDto clienteCriacaoDto);
+        Task<ClienteModel?> EditarCliente(ClienteEdicaoDto clienteEdicaoDto);
+        Task<bool> ExcluirCliente(int idCliente);
     }
 }

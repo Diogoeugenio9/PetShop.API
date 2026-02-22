@@ -8,8 +8,13 @@ namespace PetShop.API.Mappings
     {
         public PetProfile()
         {
+            // DTO → Model (necessário para criar/editar)
             CreateMap<PetCriacaoDto, PetModel>();
             CreateMap<PetEdicaoDto, PetModel>();
+
+            // Model → DTO (útil para retornar dados)
+            CreateMap<PetModel, PetCriacaoDto>();
+            CreateMap<PetModel, PetEdicaoDto>();
         }
     }
 }

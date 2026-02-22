@@ -17,47 +17,48 @@ namespace PetShop.API.Controllers
             _clienteInterface = clienteInterface;
         }
 
-        [HttpGet("ListarClientes")]
-        public async Task<ActionResult<ResponseModel<List<ClienteModel>>>> ListarClientes()
+        [HttpGet("ListarClientes")] 
+        public async Task<ActionResult<List<ClienteModel>>> ListarClientes()
         {
             var clientes = await _clienteInterface.ListarClientes();
-            return Ok(clientes);
+            return Ok(clientes); 
         }
 
-        [HttpGet("BuscarClientePorId/{idCliente}")]
-        public async Task<ActionResult<ResponseModel<ClienteModel>>> BuscarClientePorId(int idCliente)
+        [HttpGet("BuscarClientePorId/{idCliente}")] 
+        public async Task<ActionResult<ClienteModel>> BuscarClientePorId(int idCliente) 
         {
             var cliente = await _clienteInterface.BuscarClientePorId(idCliente);
-            return Ok(cliente);
+            if (cliente == null)
+                return NotFound("Cliente não encontrado");
+            return Ok(cliente); 
         }
 
-        [HttpGet("BuscarClientePorIdPet/{idPet}")]
-        public async Task<ActionResult<ResponseModel<ClienteModel>>> BuscarClientePorIdPet(int idPet)
-        {
-            var cliente = await _clienteInterface.BuscarClientePorIdPet(idPet);
-            return Ok(cliente);
-        }
 
         [HttpPost("CriarCliente")]
-        public async Task<ActionResult<ResponseModel<List<ClienteModel>>>> CriarCliente(ClienteCriacaoDto clienteCriacaoDto)
+        public async Task<ActionResult<ClienteModel>> CriarCliente(ClienteCriacaoDto dto)
         {
-            var clientes = await _clienteInterface.CriarCliente(clienteCriacaoDto);
-            return Ok(clientes);
+            var cliente = await _clienteInterface.CriarCliente(dto);
+            return CreatedAtAction(nameof(BuscarClientePorId), new { idCliente = cliente.Id }, cliente);
         }
 
         [HttpPut("EditarCliente")]
-        public async Task<ActionResult<ResponseModel<List<ClienteModel>>>> EditarCliente(ClienteEdicaoDto clienteEdicaoDto)
+        public async Task<ActionResult<ClienteModel>> EditarCliente(ClienteEdicaoDto dto) 
         {
-            var clientes = await _clienteInterface.EditarCliente(clienteEdicaoDto);
-            return Ok(clientes);
+            var cliente = await _clienteInterface.EditarCliente(dto);
+            if (cliente == null) 
+                return NotFound("Cliente não encontrado");
+
+            return Ok(cliente);
         }
 
-        [HttpDelete("ExcluirCliente")]
-        public async Task<ActionResult<ResponseModel<List<ClienteModel>>>> ExcluirCliente(int idCliente)
+        [HttpDelete("ExcluirCliente/{idCliente}")]
+        public async Task<IActionResult> ExcluirCliente(int idCliente)
         {
-            var clientes = await _clienteInterface.ExcluirCliente(idCliente);
-            return Ok(clientes);
-        }
+            var sucesso = await _clienteInterface.ExcluirCliente(idCliente);
+            if (!sucesso)
+                return NotFound("Cliente não encontrado");
+
+            return NoContent(); }
     }
 
 
