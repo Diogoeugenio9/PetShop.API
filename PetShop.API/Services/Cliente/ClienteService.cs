@@ -1,197 +1,108 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PetShop.API.Data;
+﻿using AutoMapper;
 using PetShop.API.Dto.Cliente;
 using PetShop.API.Models;
+using PetShop.API.Repositories.Cliente;
+using static PetShop.API.Repository.Interface.IClienteRepository;
 
 namespace PetShop.API.Services.Cliente
 {
-    public class ClienteService : IClienteInterface
+    public class ClienteService : IClienteService
     {
+        private readonly IClienteRepository _repository;
+        private readonly IMapper _mapper;
 
-        private readonly AppDbContext _context;
-        public ClienteService(AppDbContext context)
+        public ClienteService(IClienteRepository repository, IMapper mapper)
         {
-            _context = context;
-        }
-
-
-        public async Task<ResponseModel<ClienteModel>> BuscarClientePorId(int idCliente)
-        {
-            ResponseModel<ClienteModel> resposta = new ResponseModel<ClienteModel>();
-            try
-            {
-                var cliente = await _context.Clientes.FirstOrDefaultAsync(clienteBanco => clienteBanco.Id == idCliente);
-
-                if(cliente == null)
-                {
-                    resposta.Mensagem = "Nenhum registro localizado!";
-                    return resposta;
-                }
-
-                resposta.Dados = cliente;
-                resposta.Mensagem = "Autor Localizado!";
-
-                return resposta;
-
-            }
-            catch (Exception ex)
-            {
-                resposta.Mensagem = ex.Message;
-                resposta.Status = false;
-                return resposta;
-            }
-        }
-
-        public async Task<ResponseModel<ClienteModel>> BuscarClientePorIdPet(int idPet)
-        {
-            ResponseModel<ClienteModel> resposta = new ResponseModel<ClienteModel>();
-            try
-            {
-                var pet = await _context.Pets
-                    .Include(a => a.Cliente)
-                    .FirstOrDefaultAsync(petBanco => petBanco.Id == idPet);
-
-                if(pet == null)
-                {
-                    resposta.Mensagem = "Nenhum registro localizado!";
-                    return resposta;
-
-                }
-
-                resposta.Dados = pet.Cliente;
-                resposta.Mensagem = "Cliente Localizado!";
-                return resposta;
-
-            }
-            catch (Exception ex)
-            {
-                resposta.Mensagem = ex.Message;
-                resposta.Status = false;
-                return resposta;
-            }
-            ;
-        }
-
-        public async Task<ResponseModel<List<ClienteModel>>> CriarCliente(ClienteCriacaoDto clienteCriacaoDto)
-        {
-            ResponseModel<List<ClienteModel>> resposta = new ResponseModel<List<ClienteModel>>();
-
-            try
-            {
-                var cliente = new ClienteModel()
-                {
-                    Nome = clienteCriacaoDto.Nome,
-                    Sobrenome = clienteCriacaoDto.Sobrenome
-                };
-
-                _context.Add(cliente);
-                await _context.SaveChangesAsync();
-
-                resposta.Dados = await _context.Clientes.ToListAsync();
-                resposta.Mensagem = "Cliente criado com sucesso!";
-                return resposta;
-
-            }
-            catch (Exception ex)
-            {
-                resposta.Mensagem = ex.Message;
-                resposta.Status = false;
-                return resposta;
-
-
-            }
-
-        }
-
-        public async Task<ResponseModel<List<ClienteModel>>> EditarCliente(ClienteEdicaoDto clienteEdicaoDto)
-        {
-            ResponseModel<List<ClienteModel>> resposta = new ResponseModel<List<ClienteModel>>();
-
-            try
-            {
-                var cliente = await _context.Clientes
-                    .FirstOrDefaultAsync(clienteBanco => clienteBanco.Id == clienteEdicaoDto.Id);
-
-
-                if (cliente == null)
-                {
-                    resposta.Mensagem = "Nenhum cliente localizado!";
-                    return resposta;
-                }
-
-                cliente.Nome = clienteEdicaoDto.Nome;
-                cliente.Sobrenome = clienteEdicaoDto.Sobrenome;
-
-                _context.Update(cliente);
-                await _context.SaveChangesAsync();
-
-                resposta.Dados = await _context.Clientes.ToListAsync();
-                resposta.Mensagem = "Cliente ediatdo com sucesso!";
-
-                return resposta;
-
-
-            }
-            catch (Exception ex)
-            {
-                resposta.Mensagem = ex.Message;
-                resposta.Status = false;
-                return resposta;
-            }
-
-        }
-
-        public async Task<ResponseModel<List<ClienteModel>>> ExcluirCliente(int idCliente)
-        {
-            ResponseModel<List<ClienteModel>> resposta = new ResponseModel<List<ClienteModel>>();
-
-            try
-            {
-                var cliente = await _context.Clientes
-                    .FirstOrDefaultAsync(clienteBanco => clienteBanco.Id == idCliente);
-
-                if(cliente == null)
-                {
-                    resposta.Mensagem = "Nenhum cliente localizado!";
-                    return resposta;
-                }
-
-                _context.Remove(cliente);
-                await _context.SaveChangesAsync();
-
-                resposta.Dados = await _context.Clientes.ToListAsync();
-                resposta.Mensagem = "Cliente removido com sucesso!";
-
-                return resposta;
-
-            }
-            catch(Exception ex)
-            {
-                resposta.Mensagem = ex.Message;
-                resposta.Status = false;
-                return resposta;
-
-            }
+            _repository = repository;
+            _mapper = mapper;
         }
 
         public async Task<ResponseModel<List<ClienteModel>>> ListarClientes()
         {
-            ResponseModel<List<ClienteModel>> resposta = new ResponseModel<List<ClienteModel>>();
-            try
+            var resposta = new ResponseModel<List<ClienteModel>>();
+            resposta.Dados = await _repository.GetAll();
+            resposta.Mensagem = "Clientes listados com sucesso!";
+            return resposta;
+        }
+
+        public async Task<ResponseModel<ClienteModel>> BuscarClientePorId(int idCliente)
+        {
+            var resposta = new ResponseModel<ClienteModel>();
+            var cliente = await _repository.GetById(idCliente);
+
+            if (cliente == null)
             {
-                var clientes = await _context.Clientes.ToListAsync();
-
-                resposta.Dados = clientes;
-                resposta.Mensagem = " Todos clientes foram coletados!";
-
+                resposta.Mensagem = "Cliente não encontrado!";
                 return resposta;
             }
-            catch(Exception ex)
+
+            resposta.Dados = cliente;
+            resposta.Mensagem = "Cliente localizado!";
+            return resposta;
+        }
+
+        public async Task<ResponseModel<ClienteModel>> BuscarClientePorIdPet(int idPet)
+        {
+            var resposta = new ResponseModel<ClienteModel>();
+            var cliente = await _repository.GetByPetId(idPet);
+
+            if (cliente == null)
             {
-                resposta.Mensagem = ex.Message;
-                resposta.Status = false;
+                resposta.Mensagem = "Cliente não encontrado!";
                 return resposta;
             }
+
+            resposta.Dados = cliente;
+            resposta.Mensagem = "Cliente localizado!";
+            return resposta;
+        }
+
+        public async Task<ResponseModel<List<ClienteCriacaoDto>>> CriarCliente(ClienteCriacaoDto dto)
+        {
+            var resposta = new ResponseModel<List<ClienteCriacaoDto>>();
+            var cliente = _mapper.Map<ClienteModel>(dto);
+
+            cliente.DataCadastro = DateTime.Now;
+            cliente.Ativo = true;
+
+            await _repository.Add(cliente);
+
+            resposta.Mensagem = "Cliente criado com sucesso!";
+            return resposta;
+        }
+
+        public async Task<ResponseModel<List<ClienteEdicaoDto>>> EditarCliente(ClienteEdicaoDto dto)
+        {
+            var resposta = new ResponseModel<List<ClienteEdicaoDto>>();
+            var cliente = await _repository.GetById(dto.Id);
+
+            if (cliente == null)
+            {
+                resposta.Mensagem = "Cliente não encontrado!";
+                return resposta;
+            }
+
+            _mapper.Map(dto, cliente);
+            await _repository.Update(cliente);
+
+            resposta.Mensagem = "Cliente atualizado com sucesso!";
+            return resposta;
+        }
+
+        public async Task<ResponseModel<List<ClienteModel>>> ExcluirCliente(int idCliente)
+        {
+            var resposta = new ResponseModel<List<ClienteModel>>();
+            var cliente = await _repository.GetById(idCliente);
+
+            if (cliente == null)
+            {
+                resposta.Mensagem = "Cliente não encontrado!";
+                return resposta;
+            }
+
+            await _repository.Delete(cliente);
+            resposta.Mensagem = "Cliente removido com sucesso!";
+            return resposta;
         }
     }
 }

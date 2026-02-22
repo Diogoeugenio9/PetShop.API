@@ -11,8 +11,8 @@ namespace PetShop.API.Controllers
     public class ClienteController : ControllerBase
     {
 
-        private readonly IClienteInterface _clienteInterface;
-        public ClienteController(IClienteInterface clienteInterface)
+        private readonly IClienteService _clienteInterface;
+        public ClienteController(IClienteService clienteInterface)
         {
             _clienteInterface = clienteInterface;
         }

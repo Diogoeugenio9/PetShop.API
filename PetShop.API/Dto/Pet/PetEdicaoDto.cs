@@ -1,6 +1,9 @@
-﻿namespace PetShop.API.Models
+﻿using PetShop.API.Dto.Vinculo;
+using PetShop.API.Models;
+
+namespace PetShop.API.Dto.Pet
 {
-    public class PetModel
+    public class PetEdicaoDto
     {
         public int Id { get; set; }
         public string Nome { get; set; }
@@ -13,8 +16,6 @@
 
 
         public int ClienteId { get; set; }
-        public ClienteModel Cliente { get; set; }
-
 
     }
 }
