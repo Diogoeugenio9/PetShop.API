@@ -12,8 +12,8 @@ using PetShop.API.Data;
 namespace PetShop.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260221203533_Addlogin")]
-    partial class Addlogin
+    [Migration("20260223012142_AddServicoTableFix")]
+    partial class AddServicoTableFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,7 +77,7 @@ namespace PetShop.API.Migrations
                     b.ToTable("Clientes");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,10 +110,38 @@ namespace PetShop.API.Migrations
 
                     b.HasIndex("ClienteId");
 
-                    b.ToTable("PetModel");
+                    b.ToTable("PetsModelo");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.ServicoModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DuracaoMinutos")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Preco")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Servicos");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.HasOne("PetShop.API.Models.ClienteModel", "Cliente")
                         .WithMany("Pets")

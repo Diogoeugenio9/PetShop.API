@@ -22,6 +22,35 @@ namespace PetShop.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PetShop.API.Models.AgendamentoModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataHora")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServicoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PetId");
+
+                    b.HasIndex("ServicoId");
+
+                    b.ToTable("Agendamentos");
+                });
+
             modelBuilder.Entity("PetShop.API.Models.ClienteModel", b =>
                 {
                     b.Property<int>("Id")
@@ -74,7 +103,7 @@ namespace PetShop.API.Migrations
                     b.ToTable("Clientes");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,10 +136,57 @@ namespace PetShop.API.Migrations
 
                     b.HasIndex("ClienteId");
 
-                    b.ToTable("PetModel");
+                    b.ToTable("PetsModelo");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.ServicoModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DuracaoMinutos")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Preco")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Servicos");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.AgendamentoModel", b =>
+                {
+                    b.HasOne("PetShop.API.Models.PetModelo", "Pet")
+                        .WithMany()
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PetShop.API.Models.ServicoModel", "Servico")
+                        .WithMany("Agendamentos")
+                        .HasForeignKey("ServicoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Pet");
+
+                    b.Navigation("Servico");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.HasOne("PetShop.API.Models.ClienteModel", "Cliente")
                         .WithMany("Pets")
@@ -124,6 +200,11 @@ namespace PetShop.API.Migrations
             modelBuilder.Entity("PetShop.API.Models.ClienteModel", b =>
                 {
                     b.Navigation("Pets");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.ServicoModel", b =>
+                {
+                    b.Navigation("Agendamentos");
                 });
 #pragma warning restore 612, 618
         }

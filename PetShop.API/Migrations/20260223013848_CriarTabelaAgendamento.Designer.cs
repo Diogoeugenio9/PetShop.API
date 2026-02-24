@@ -12,8 +12,8 @@ using PetShop.API.Data;
 namespace PetShop.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260221154327_AddCamposPets")]
-    partial class AddCamposPets
+    [Migration("20260223013848_CriarTabelaAgendamento")]
+    partial class CriarTabelaAgendamento
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,35 @@ namespace PetShop.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("PetShop.API.Models.AgendamentoModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataHora")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServicoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PetId");
+
+                    b.HasIndex("ServicoId");
+
+                    b.ToTable("Agendamentos");
+                });
 
             modelBuilder.Entity("PetShop.API.Models.ClienteModel", b =>
                 {
@@ -37,50 +66,39 @@ namespace PetShop.API.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Bairro")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cep")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cidade")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cpf")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Estado")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Logradouro")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Numero")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sobrenome")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Telefone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -88,7 +106,7 @@ namespace PetShop.API.Migrations
                     b.ToTable("Clientes");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -106,28 +124,72 @@ namespace PetShop.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Especie")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Idade")
                         .HasColumnType("int");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Raca")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
-                    b.ToTable("Pets");
+                    b.ToTable("PetsModelo");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.ServicoModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DuracaoMinutos")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Preco")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Servicos");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.AgendamentoModel", b =>
+                {
+                    b.HasOne("PetShop.API.Models.PetModelo", "Pet")
+                        .WithMany()
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PetShop.API.Models.ServicoModel", "Servico")
+                        .WithMany("Agendamentos")
+                        .HasForeignKey("ServicoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Pet");
+
+                    b.Navigation("Servico");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.HasOne("PetShop.API.Models.ClienteModel", "Cliente")
                         .WithMany("Pets")
@@ -141,6 +203,11 @@ namespace PetShop.API.Migrations
             modelBuilder.Entity("PetShop.API.Models.ClienteModel", b =>
                 {
                     b.Navigation("Pets");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.ServicoModel", b =>
+                {
+                    b.Navigation("Agendamentos");
                 });
 #pragma warning restore 612, 618
         }

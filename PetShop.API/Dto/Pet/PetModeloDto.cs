@@ -11,5 +11,8 @@
         public int Idade { get; set; }
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
+
+        // 🔑 Campo que faltava
+        public int ClienteId { get; set; }
     }
 }

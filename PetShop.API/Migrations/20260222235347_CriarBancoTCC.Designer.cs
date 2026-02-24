@@ -12,8 +12,8 @@ using PetShop.API.Data;
 namespace PetShop.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260219003723_AddCamposCliente")]
-    partial class AddCamposCliente
+    [Migration("20260222235347_CriarBancoTCC")]
+    partial class CriarBancoTCC
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,50 +37,39 @@ namespace PetShop.API.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Bairro")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cep")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cidade")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cpf")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Estado")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Logradouro")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Numero")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sobrenome")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Telefone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -88,7 +77,7 @@ namespace PetShop.API.Migrations
                     b.ToTable("Clientes");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -96,21 +85,35 @@ namespace PetShop.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ClienteId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Especie")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Idade")
+                        .HasColumnType("int");
+
                     b.Property<string>("Nome")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Raca")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
-                    b.ToTable("Pets");
+                    b.ToTable("PetsModelo");
                 });
 
-            modelBuilder.Entity("PetShop.API.Models.PetModel", b =>
+            modelBuilder.Entity("PetShop.API.Models.PetModelo", b =>
                 {
                     b.HasOne("PetShop.API.Models.ClienteModel", "Cliente")
                         .WithMany("Pets")

@@ -21,7 +21,7 @@ namespace PetShop.API.Repositories.Cliente
             => await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
 
         public async Task<ClienteModel?> GetByPetId(int petId)
-            => await _context.PetsModel
+            => await _context.PetsModelo
                 .Include(p => p.Cliente)
                 .Where(p => p.Id == petId)
                 .Select(p => p.Cliente)
