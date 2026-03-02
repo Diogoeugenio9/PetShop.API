@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using PetShop.API.Dto.Cliente;
 using PetShop.API.Models;
-using PetShop.API.Repositories.Cliente;
-using static PetShop.API.Repository.Interface.IClienteRepository;
+using PetShop.API.Repository.Interface;
 
 namespace PetShop.API.Services.Cliente
 {
@@ -18,62 +17,56 @@ namespace PetShop.API.Services.Cliente
         }
 
         // Listar todos os clientes
-         public async Task<List<ClienteModel>> ListarClientes() 
+        public async Task<List<ClienteDto>> ListarClientes()
         {
-            return await _repository.GetAll(); 
+            var clientes = await _repository.GetAllAsync();
+            return _mapper.Map<List<ClienteDto>>(clientes);
         }
 
-        //Buscar cleinte por Id
-        public async Task<ClienteModel?> BuscarClientePorId(int idCliente)
+        // Buscar cliente por Id
+        public async Task<ClienteDto?> BuscarClientePorId(int id)
         {
-            return await _repository.GetById(idCliente);
+            var cliente = await _repository.GetByIdAsync(id);
+            return _mapper.Map<ClienteDto?>(cliente);
         }
-
 
         // Buscar cliente pelo ID do Pet
-         public async Task<ClienteModel?> BuscarClientePorIdPet(int idPet)
+        public async Task<ClienteDto?> BuscarClientePorIdPet(int idPet)
         {
-            return await _repository.GetByPetId(idPet);
+            var cliente = await _repository.GetByPetId(idPet);
+            return _mapper.Map<ClienteDto?>(cliente);
         }
 
-        public async Task<ClienteModel> CriarCliente(ClienteCriacaoDto dto)
+        // Criar cliente
+        public async Task<ClienteDto> CriarCliente(ClienteDto dto)
         {
             var cliente = _mapper.Map<ClienteModel>(dto);
-            cliente.DataCadastro = DateTime.Now;
-            cliente.Ativo = true;
-
-            await _repository.Add(cliente);
-            return cliente;
+            await _repository.AddAsync(cliente);
+            return _mapper.Map<ClienteDto>(cliente);
         }
-
 
         // Editar cliente     
-         public async Task<ClienteModel?> EditarCliente(ClienteEdicaoDto dto)
-        { 
-            var cliente = await _repository.GetById(dto.Id);
-            
-            if (cliente == null)             
-                return null;
+        public async Task<ClienteDto?> EditarCliente(ClienteDto dto)
+        {
+            var cliente = await _repository.GetByIdAsync(dto.Id);
+            if (cliente == null) return null;
 
             _mapper.Map(dto, cliente);
-            await _repository.Update(cliente);
+            await _repository.UpdateAsync(cliente);
 
-            return cliente; 
+            return _mapper.Map<ClienteDto>(cliente);
         }
-
 
         // Excluir cliente
         public async Task<bool> ExcluirCliente(int idCliente)
         {
-            var cliente = await _repository.GetById(idCliente);
+            var cliente = await _repository.GetByIdAsync(idCliente);
 
-            if (cliente == null) 
+            if (cliente == null)
                 return false;
-            
+
             await _repository.Delete(cliente);
-            return true; 
-
-
+            return true;
         }
     }
 }

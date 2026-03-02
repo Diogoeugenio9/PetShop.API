@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetShop.API.Data;
 using PetShop.API.Models;
-using static PetShop.API.Repository.Interface.IClienteRepository;
+using PetShop.API.Repository.Interface;
 
 namespace PetShop.API.Repositories.Cliente
 {
@@ -14,10 +14,10 @@ namespace PetShop.API.Repositories.Cliente
             _context = context;
         }
 
-        public async Task<List<ClienteModel>> GetAll()
+        public async Task<List<ClienteModel>> GetAllAsync()
             => await _context.Clientes.ToListAsync();
 
-        public async Task<ClienteModel?> GetById(int id)
+        public async Task<ClienteModel?> GetByIdAsync(int id)
             => await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
 
         public async Task<ClienteModel?> GetByPetId(int petId)
@@ -27,13 +27,13 @@ namespace PetShop.API.Repositories.Cliente
                 .Select(p => p.Cliente)
                 .FirstOrDefaultAsync();
 
-        public async Task Add(ClienteModel cliente)
+        public async Task AddAsync(ClienteModel cliente)
         {
             _context.Clientes.Add(cliente);
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(ClienteModel cliente)
+        public async Task UpdateAsync(ClienteModel cliente)
         {
             _context.Clientes.Update(cliente);
             await _context.SaveChangesAsync();

@@ -16,7 +16,7 @@ namespace PetShop.API.Controllers
             _petService = petService;
         }
 
-        // Listar todos os pets
+        
         [HttpGet("ListarPets")]
         public async Task<ActionResult<List<PetModelo>>> ListarPets()
         {
@@ -24,7 +24,7 @@ namespace PetShop.API.Controllers
             return Ok(pets);
         }
 
-        // Buscar pet por ID
+        
         [HttpGet("BuscarPetPorId/{idPet}")]
         public async Task<ActionResult<PetModelo>> BuscarPetPorId(int idPet)
         {
@@ -35,7 +35,7 @@ namespace PetShop.API.Controllers
             return Ok(pet);
         }
 
-        // Buscar pets de um cliente
+        
         [HttpGet("BuscarPetPorIdCliente/{idCliente}")]
         public async Task<ActionResult<List<PetModelo>>> BuscarPetPorIdCliente(int idCliente)
         {
@@ -46,7 +46,7 @@ namespace PetShop.API.Controllers
             return Ok(pets);
         }
 
-        // Criar pet
+       
         [HttpPost("CriarPet")]
         public async Task<ActionResult<PetModelo>> CriarPet(PetModeloDto petCriacaoDto)
         {
@@ -54,7 +54,7 @@ namespace PetShop.API.Controllers
             return CreatedAtAction(nameof(BuscarPetPorId), new { idPet = pet.Id }, pet);
         }
 
-        // Editar pet
+        
         [HttpPut("EditarPet")]
         public async Task<ActionResult<PetModelo>> EditarPet(PetModeloDto petEdicaoDto)
         {
@@ -65,7 +65,7 @@ namespace PetShop.API.Controllers
             return Ok(pet);
         }
 
-        // Excluir pet
+        
         [HttpDelete("ExcluirPet/{idPet}")]
         public async Task<IActionResult> ExcluirPet(int idPet)
         {

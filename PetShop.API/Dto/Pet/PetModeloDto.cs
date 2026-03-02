@@ -2,7 +2,7 @@
 {
     public class PetModeloDto
     {
-        //MANTER - RENOMEAR CERTO
+        
         public int Id { get; set; }
         public string Nome { get; set; }
 
@@ -12,7 +12,7 @@
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
 
-        // 🔑 Campo que faltava
+        // Campo que faltava
         public int ClienteId { get; set; }
     }
 }

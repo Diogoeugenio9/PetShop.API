@@ -17,7 +17,7 @@ namespace PetShop.API.Controllers
             _servicoService = servicoService;
         }
 
-        // Listar todos os serviços
+        
         [HttpGet("ListarServicos")]
         public async Task<ActionResult<List<ServicoModel>>> ListarServicos()
         {
@@ -25,7 +25,7 @@ namespace PetShop.API.Controllers
             return Ok(servicos);
         }
 
-        // Buscar serviço por ID
+       
         [HttpGet("BuscarServicoPorId/{idServico}")]
         public async Task<ActionResult<ServicoModel>> BuscarServicoPorId(int idServico)
         {
@@ -36,7 +36,7 @@ namespace PetShop.API.Controllers
             return Ok(servico);
         }
 
-        // Criar serviço
+       
         [HttpPost("CriarServico")]
         public async Task<ActionResult<ServicoModel>> CriarServico(ServicoDto servicoCriacaoDto)
         {
@@ -44,7 +44,7 @@ namespace PetShop.API.Controllers
             return CreatedAtAction(nameof(BuscarServicoPorId), new { idServico = servico.Id }, servico);
         }
 
-        // Editar serviço
+        
         [HttpPut("EditarServico")]
         public async Task<ActionResult<ServicoModel>> EditarServico(ServicoDto servicoEdicaoDto)
         {
@@ -55,7 +55,7 @@ namespace PetShop.API.Controllers
             return Ok(servico);
         }
 
-        // Excluir serviço
+        
         [HttpDelete("ExcluirServico/{idServico}")]
         public async Task<IActionResult> ExcluirServico(int idServico)
         {

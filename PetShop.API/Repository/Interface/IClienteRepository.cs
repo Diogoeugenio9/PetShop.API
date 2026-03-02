@@ -4,14 +4,11 @@ namespace PetShop.API.Repository.Interface
 {
     public interface IClienteRepository
     {
-        public interface IClienteRepository
-        {
-            Task<List<ClienteModel>> GetAll();
-            Task<ClienteModel?> GetById(int id);
-            Task<ClienteModel?> GetByPetId(int petId);
-            Task Add(ClienteModel cliente);
-            Task Update(ClienteModel cliente);
-            Task Delete(ClienteModel cliente);
-        }
+        Task<List<ClienteModel>> GetAllAsync();
+        Task<ClienteModel?> GetByIdAsync(int id);
+        Task<ClienteModel?> GetByPetId(int petId);
+        Task AddAsync(ClienteModel cliente);
+        Task UpdateAsync(ClienteModel cliente);
+        Task Delete(ClienteModel cliente);
     }
 }

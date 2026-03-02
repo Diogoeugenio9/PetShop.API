@@ -14,7 +14,7 @@ namespace PetShop.API.Models
         public int DuracaoMinutos { get; set; }
         public bool Ativo { get; set; } 
         
-        // Relacionamento: 1 Serviço → N Agendamentos ADICIONAR DEPOIS QUE CRIAR AGENDAMENTO
+        
         public virtual ICollection<AgendamentoModel> Agendamentos { get; set; }
 
     }

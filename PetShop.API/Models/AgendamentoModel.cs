@@ -6,7 +6,7 @@
         public DateTime DataHora { get; set; }
         public string Status { get; set; }  
 
-        // 🔗 Relacionamentos
+        // Relacionamentos
         public int PetId { get; set; }
         public virtual PetModelo Pet { get; set; }
 
