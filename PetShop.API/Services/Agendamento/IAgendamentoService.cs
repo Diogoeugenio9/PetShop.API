@@ -11,7 +11,8 @@ namespace PetShop.API.Services.Agendamento
         Task<List<AgendamentoDto>> BuscarAgendamentosPorCliente(int clienteId);
 
         // Operações CRUD
-        Task<AgendamentoDto> CriarAgendamento(AgendamentoDto agendamentoCriacaoDto);
+        Task<AgendamentoDto> CriarAgendamento(AgendamentoCreateDto dto);
+
         Task<AgendamentoDto?> EditarAgendamento(AgendamentoDto agendamentoEdicaoDto);
         Task<bool> ExcluirAgendamento(int idAgendamento);
 

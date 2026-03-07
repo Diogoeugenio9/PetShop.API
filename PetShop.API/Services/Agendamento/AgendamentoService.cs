@@ -42,14 +42,33 @@ namespace PetShop.API.Services.Agendamento
             return _mapper.Map<List<AgendamentoDto>>(agendamentos);
         }
 
-        public async Task<AgendamentoDto> CriarAgendamento(AgendamentoDto agendamentoCriacaoDto)
+        public async Task<AgendamentoDto> CriarAgendamento(AgendamentoCreateDto dto)
         {
-            var agendamento = _mapper.Map<AgendamentoModel>(agendamentoCriacaoDto);
-            agendamento.Status = "Pendente";
+            var agendamento = new AgendamentoModel
+            {
+                DataHora = dto.DataHora,
+                Status = "Pendente",
+                PetId = dto.PetId,
+                ServicoId = dto.ServicoId
+            };
 
             await _repository.AddAsync(agendamento);
-            return _mapper.Map<AgendamentoDto>(agendamento);
+
+            var pet = await _repository.GetPetByIdAsync(dto.PetId);
+            var servico = await _repository.GetServicoByIdAsync(dto.ServicoId);
+
+            return new AgendamentoDto
+            {
+                Id = agendamento.Id,
+                DataHora = agendamento.DataHora,
+                Status = agendamento.Status,
+                PetId = agendamento.PetId,
+                ServicoId = agendamento.ServicoId,
+                NomePet = pet?.Nome,
+                NomeServico = servico?.Nome
+            };
         }
+
 
         public async Task<AgendamentoDto?> EditarAgendamento(AgendamentoDto agendamentoEdicaoDto)
         {

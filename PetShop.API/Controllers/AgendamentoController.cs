@@ -61,16 +61,17 @@ namespace PetShop.API.Controllers
         }
 
 
-        
+
         [HttpPost("CriarAgendamento")]
-        public async Task<ActionResult<AgendamentoDto>> CriarAgendamento(AgendamentoDto agendamentoCriacaoDto)
+        public async Task<ActionResult<AgendamentoDto>> CriarAgendamento(AgendamentoCreateDto dto)
         {
-            var agendamento = await _agendamentoService.CriarAgendamento(agendamentoCriacaoDto);
+            var agendamento = await _agendamentoService.CriarAgendamento(dto);
             return CreatedAtAction(nameof(BuscarAgendamentoPorId), new { idAgendamento = agendamento.Id }, agendamento);
         }
 
 
-       
+
+
         [HttpPut("EditarAgendamento")]
         public async Task<ActionResult<AgendamentoDto>> EditarAgendamento(AgendamentoDto agendamentoEdicaoDto)
         {
