@@ -49,7 +49,7 @@ namespace PetShop.API.Repository
             return true;
         }
 
-        public async Task<PetModelo?> GetPetByIdAsync(int petId)
+        public async Task<PetModel?> GetPetByIdAsync(int petId)
         {
             return await _context.PetsModelo.FirstOrDefaultAsync(p => p.Id == petId);
         }

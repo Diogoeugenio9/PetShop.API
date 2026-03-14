@@ -8,7 +8,7 @@
 
         // Relacionamentos
         public int PetId { get; set; }
-        public virtual PetModelo Pet { get; set; }
+        public virtual PetModel Pet { get; set; }
 
         public int ServicoId { get; set; }
         public virtual ServicoModel Servico { get; set; }

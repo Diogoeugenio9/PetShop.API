@@ -39,11 +39,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// CORS
+//// CORS
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowFront",
+//        policy => policy.WithOrigins("http://localhost:5173")
+//                        .AllowAnyHeader()
+//                        .AllowAnyMethod());
+//});
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFront",
         policy => policy.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+
+    options.AddPolicy("AllowAll",
+        policy => policy.AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
@@ -73,17 +87,30 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
+//// Configure the HTTP request pipeline.
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+//app.UseHttpsRedirection();
+//app.UseCors("AllowFront");
+//app.UseAuthentication();
+//app.UseAuthorization();
+
+//app.MapControllers();
+//app.Run();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
-app.UseCors("AllowFront");
+app.UseCors(app.Environment.IsDevelopment() ? "AllowAll" : "AllowFront");
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();

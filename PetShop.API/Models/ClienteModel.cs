@@ -26,6 +26,6 @@ namespace PetShop.API.Models
         public bool Ativo { get; set; }
 
         [JsonIgnore]
-        public ICollection<PetModelo> Pets { get; set; }
+        public ICollection<PetModel> Pets { get; set; }
     }
 }

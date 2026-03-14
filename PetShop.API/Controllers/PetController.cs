@@ -18,7 +18,7 @@ namespace PetShop.API.Controllers
 
         
         [HttpGet("ListarPets")]
-        public async Task<ActionResult<List<PetModelo>>> ListarPets()
+        public async Task<ActionResult<List<PetModel>>> ListarPets()
         {
             var pets = await _petService.ListarPets();
             return Ok(pets);
@@ -26,7 +26,7 @@ namespace PetShop.API.Controllers
 
         
         [HttpGet("BuscarPetPorId/{idPet}")]
-        public async Task<ActionResult<PetModelo>> BuscarPetPorId(int idPet)
+        public async Task<ActionResult<PetModel>> BuscarPetPorId(int idPet)
         {
             var pet = await _petService.BuscarPetPorId(idPet);
             if (pet == null)
@@ -37,7 +37,7 @@ namespace PetShop.API.Controllers
 
         
         [HttpGet("BuscarPetPorIdCliente/{idCliente}")]
-        public async Task<ActionResult<List<PetModelo>>> BuscarPetPorIdCliente(int idCliente)
+        public async Task<ActionResult<List<PetModel>>> BuscarPetPorIdCliente(int idCliente)
         {
             var pets = await _petService.BuscarPetPorIdCliente(idCliente);
             if (pets == null || !pets.Any())
@@ -48,7 +48,7 @@ namespace PetShop.API.Controllers
 
        
         [HttpPost("CriarPet")]
-        public async Task<ActionResult<PetModelo>> CriarPet(PetModeloDto petCriacaoDto)
+        public async Task<ActionResult<PetModel>> CriarPet(PetModeloDto petCriacaoDto)
         {
             var pet = await _petService.CriarPet(petCriacaoDto);
             return CreatedAtAction(nameof(BuscarPetPorId), new { idPet = pet.Id }, pet);
@@ -56,7 +56,7 @@ namespace PetShop.API.Controllers
 
         
         [HttpPut("EditarPet")]
-        public async Task<ActionResult<PetModelo>> EditarPet(PetModeloDto petEdicaoDto)
+        public async Task<ActionResult<PetModel>> EditarPet(PetModeloDto petEdicaoDto)
         {
             var pet = await _petService.EditarPet(petEdicaoDto);
             if (pet == null)
