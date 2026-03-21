@@ -17,19 +17,19 @@ namespace PetShop.API.Services.Pet
             _mapper = mapper;
         }
 
-        public async Task<PetModel> BuscarPetPorId(int idPet)
+        public async Task<PetModelo> BuscarPetPorId(int idPet)
         {
             return await _repository.GetByIdAsync(idPet);
         }
 
-        public async Task<List<PetModel>> BuscarPetPorIdCliente(int idCliente)
+        public async Task<List<PetModelo>> BuscarPetPorIdCliente(int idCliente)
         {
             return await _repository.GetByClienteIdAsync(idCliente);
         }
 
-        public async Task<PetModel> CriarPet(PetModeloDto petCriacaoDto)
+        public async Task<PetModelo> CriarPet(PetModeloDto petCriacaoDto)
         {
-            var pet = _mapper.Map<PetModel>(petCriacaoDto);
+            var pet = _mapper.Map<PetModelo>(petCriacaoDto);
             // SETANDO O VALOR DA DATA DO CADASTRO
             pet.DataCadastro = DateTime.Now;
             pet.Ativo = true;
@@ -38,7 +38,7 @@ namespace PetShop.API.Services.Pet
             return pet;
         }
 
-        public async Task<PetModel> EditarPet(PetModeloDto petEdicaoDto)
+        public async Task<PetModelo> EditarPet(PetModeloDto petEdicaoDto)
         {
             var pet = await _repository.GetByIdAsync(petEdicaoDto.Id);
 
@@ -62,7 +62,7 @@ namespace PetShop.API.Services.Pet
             return true;
         }
 
-        public async Task<List<PetModel>> ListarPets()
+        public async Task<List<PetModelo>> ListarPets()
         {
             return await _repository.GetAllAsync();
         }

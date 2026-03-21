@@ -1,6 +1,6 @@
 ﻿namespace PetShop.API.Models
 {
-    public class PetModel
+    public class PetModelo
     {
         public int Id { get; set; }
         public string Nome { get; set; }

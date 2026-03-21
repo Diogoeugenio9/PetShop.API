@@ -6,7 +6,7 @@ public class PetModeloProfile : Profile
 {
     public PetModeloProfile()
     {
-        CreateMap<PetModeloDto, PetModel>();
-        CreateMap<PetModel, PetModeloDto>(); 
+        CreateMap<PetModeloDto, PetModelo>();
+        CreateMap<PetModelo, PetModeloDto>();
     }
 }
