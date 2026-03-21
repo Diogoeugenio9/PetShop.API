@@ -77,11 +77,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 
 // Swagger
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger sempre habilitado
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 // ❌ HTTPS pode dar problema no Railway (opcional remover)
 app.UseHttpsRedirection();
