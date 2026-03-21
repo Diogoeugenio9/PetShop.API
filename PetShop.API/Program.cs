@@ -12,16 +12,19 @@ using PetShop.API.Services.Cliente;
 using PetShop.API.Services.Pet;
 using PetShop.API.Services.Servico;
 using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
+
+// ❌ LINHA ERRADA REMOVIDA
+// using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Controllers
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// JWT - agora usando valores do appsettings.json
+// JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -39,24 +42,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-//// CORS
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowFront",
-//        policy => policy.WithOrigins("http://localhost:5173")
-//                        .AllowAnyHeader()
-//                        .AllowAnyMethod());
-//});
-
-
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFront",
-        policy => policy.WithOrigins("http://localhost:5173")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
-
-    options.AddPolicy("AllowAll",
         policy => policy.AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod());
@@ -67,14 +56,14 @@ builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IPetModeloService, PetModeloService>();
 builder.Services.AddScoped<IServicoService, ServicoService>();
 builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
-builder.Services.AddScoped<IAuthService, AuthService>(); // Auth
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Repositories
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IPetModeloRepository, PetModeloRepository>();
 builder.Services.AddScoped<IServicoRepository, ServicoRepository>();
 builder.Services.AddScoped<IAgendamentoRepository, AgendamentoRepository>();
-builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>(); // Auth
+builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -87,30 +76,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-//// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.UseHttpsRedirection();
-//app.UseCors("AllowFront");
-//app.UseAuthentication();
-//app.UseAuthorization();
-
-//app.MapControllers();
-//app.Run();
-
-// Configure the HTTP request pipeline.
+// Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// ❌ HTTPS pode dar problema no Railway (opcional remover)
 app.UseHttpsRedirection();
-app.UseCors(app.Environment.IsDevelopment() ? "AllowAll" : "AllowFront");
+
+// CORS
+app.UseCors("AllowFront");
+
+// Auth
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
-app.Run();
+
+
+// 🔥 CORREÇÃO PRINCIPAL PRO RAILWAY
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Run($"http://0.0.0.0:{port}");
