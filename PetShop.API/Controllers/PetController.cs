@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Pet;
 using PetShop.API.Models;
 using PetShop.API.Services.Pet;
@@ -7,6 +8,7 @@ namespace PetShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PetController : ControllerBase
     {
         private readonly IPetModeloService _petService;

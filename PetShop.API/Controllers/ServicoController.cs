@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Servico;
 using PetShop.API.Models;
 using PetShop.API.Services.Servico;
@@ -8,6 +9,7 @@ namespace PetShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ServicoController : ControllerBase
     {
         private readonly IServicoService _servicoService;
