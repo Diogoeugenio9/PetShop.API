@@ -13,7 +13,7 @@ using PetShop.API.Services.Pet;
 using PetShop.API.Services.Servico;
 using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
 
-// ❌ LINHA ERRADA REMOVIDA
+
 // using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
 using System.Text;
 
@@ -77,12 +77,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 
 // Swagger
-// Swagger sempre habilitado
 app.UseSwagger();
 app.UseSwaggerUI();
 
 
-// ❌ HTTPS pode dar problema no Railway (opcional remover)
 app.UseHttpsRedirection();
 
 // CORS

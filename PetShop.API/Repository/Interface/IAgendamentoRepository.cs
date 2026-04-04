@@ -12,7 +12,7 @@ namespace PetShop.API.Repository.Interface
         Task<AgendamentoModel> UpdateAsync(AgendamentoModel agendamento);
         Task<bool> DeleteAsync(int id);
 
-        // 🔑 Métodos auxiliares
+        // metodos auxiliares
         Task<PetModelo?> GetPetByIdAsync(int petId);
         Task<ServicoModel?> GetServicoByIdAsync(int servicoId);
     }

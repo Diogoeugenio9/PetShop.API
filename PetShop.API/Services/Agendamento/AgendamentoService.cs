@@ -16,7 +16,7 @@ namespace PetShop.API.Services.Agendamento
             _mapper = mapper;
         }
 
-        // Listar todos os agendamentos
+       
         public async Task<List<AgendamentoDto>> ListarAgendamentos()
         {
             var agendamentos = await _repository.GetAllAsync();

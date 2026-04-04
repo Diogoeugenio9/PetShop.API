@@ -16,28 +16,28 @@ namespace PetShop.API.Services.Cliente
             _mapper = mapper;
         }
 
-        // Listar todos os clientes
+       
         public async Task<List<ClienteDto>> ListarClientes()
         {
             var clientes = await _repository.GetAllAsync();
             return _mapper.Map<List<ClienteDto>>(clientes);
         }
 
-        // Buscar cliente por Id
+        
         public async Task<ClienteDto?> BuscarClientePorId(int id)
         {
             var cliente = await _repository.GetByIdAsync(id);
             return _mapper.Map<ClienteDto?>(cliente);
         }
 
-        // Buscar cliente pelo ID do Pet
+        
         public async Task<ClienteDto?> BuscarClientePorIdPet(int idPet)
         {
             var cliente = await _repository.GetByPetId(idPet);
             return _mapper.Map<ClienteDto?>(cliente);
         }
 
-        // Criar cliente
+        
         public async Task<ClienteDto> CriarCliente(ClienteDto dto)
         {
             var cliente = _mapper.Map<ClienteModel>(dto);
@@ -45,7 +45,7 @@ namespace PetShop.API.Services.Cliente
             return _mapper.Map<ClienteDto>(cliente);
         }
 
-        // Editar cliente     
+          
         public async Task<ClienteDto?> EditarCliente(ClienteDto dto)
         {
             var cliente = await _repository.GetByIdAsync(dto.Id);
@@ -57,7 +57,7 @@ namespace PetShop.API.Services.Cliente
             return _mapper.Map<ClienteDto>(cliente);
         }
 
-        // Excluir cliente
+        
         public async Task<bool> ExcluirCliente(int idCliente)
         {
             var cliente = await _repository.GetByIdAsync(idCliente);

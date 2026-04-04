@@ -23,7 +23,7 @@ namespace PetShop.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); 
-            // 🔑 Configuração do campo Preco
+            
              modelBuilder.Entity<ServicoModel>() 
                 .Property(s => s.Preco)
                 .HasColumnType("decimal(10,2)");

@@ -30,7 +30,7 @@ namespace PetShop.API.Services.Pet
         public async Task<PetModelo> CriarPet(PetModeloDto petCriacaoDto)
         {
             var pet = _mapper.Map<PetModelo>(petCriacaoDto);
-            // SETANDO O VALOR DA DATA DO CADASTRO
+            
             pet.DataCadastro = DateTime.Now;
             pet.Ativo = true;
 
