@@ -57,5 +57,26 @@ namespace PetShop.API.Services.Produto
         {
             return await _repository.GetAllAsync();
         }
+
+        public async Task<ProdutoModel?> MovimentarProduto(MovimentarProdutoDto movimentarProdutoDto)
+        {
+            var produto = await _repository.GetByIdAsync(movimentarProdutoDto.ProdutoId);
+
+            if (produto == null)
+                return null;
+
+            if (movimentarProdutoDto.Tipo == "entrada")
+            {
+                produto.Quantidade += movimentarProdutoDto.Quantidade;
+            }
+            else if (movimentarProdutoDto.Tipo == "saida")
+            {
+                produto.Quantidade -= movimentarProdutoDto.Quantidade;
+            }
+
+            await _repository.UpdateAsync(produto);
+
+            return produto;
+        }
     }
 }

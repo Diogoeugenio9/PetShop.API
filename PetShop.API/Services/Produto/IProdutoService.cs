@@ -11,5 +11,6 @@ namespace PetShop.API.Services.Produto
         Task<ProdutoModel> CriarProduto(ProdutoModeloDto produtoCriacaoDto);
         Task<ProdutoModel?> EditarProduto(ProdutoModeloDto produtoEdicaoDto);
         Task<bool> ExcluirProduto(int idProduto);
+        Task<ProdutoModel?> MovimentarProduto(MovimentarProdutoDto movimentarProdutoDto);
     }
 }

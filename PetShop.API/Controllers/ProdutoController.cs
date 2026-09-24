@@ -59,6 +59,17 @@ namespace PetShop.API.Controllers
             return Ok(produto);
         }
 
+        [HttpPost("Movimentar")]
+        public async Task<ActionResult<ProdutoModel>> Movimentar(MovimentarProdutoDto movimentarProdutoDto)
+        {
+            var produto = await _produtoService.MovimentarProduto(movimentarProdutoDto);
+
+            if (produto == null)
+                return NotFound("Produto não encontrado");
+
+            return Ok(produto);
+        }
+
         [HttpDelete("ExcluirProduto/{id}")]
         public async Task<IActionResult> ExcluirProduto(int id)
         {
