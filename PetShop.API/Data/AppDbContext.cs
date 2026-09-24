@@ -15,6 +15,7 @@ namespace PetShop.API.Data
         public DbSet<AgendamentoModel> Agendamentos { get; set; }
         public DbSet<AdministradorModel> Administradores { get; set; }
         public DbSet<ProdutoModel> Produtos { get; set; }
+        public DbSet<LancamentoModel> Lancamentos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,10 @@ namespace PetShop.API.Data
 
             modelBuilder.Entity<ProdutoModel>()
                 .Property(p => p.PrecoUnitario)
+                .HasColumnType("decimal(10,2)");
+
+            modelBuilder.Entity<LancamentoModel>()
+                .Property(l => l.Valor)
                 .HasColumnType("decimal(10,2)");
         }
     }

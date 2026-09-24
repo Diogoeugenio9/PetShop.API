@@ -14,6 +14,9 @@ using PetShop.API.Services.Servico;
 using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
 using PetShop.API.Services.Produto;
 using System.Text;
+using PetShop.API.Repository.Interface;
+using PetShop.API.Repository;
+using PetShop.API.Services.Lancamento;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +82,7 @@ builder.Services.AddScoped<IServicoService, ServicoService>();
 builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
+builder.Services.AddScoped<ILancamentoService, LancamentoService>();
 
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IPetModeloRepository, PetModeloRepository>();
@@ -86,6 +90,8 @@ builder.Services.AddScoped<IServicoRepository, ServicoRepository>();
 builder.Services.AddScoped<IAgendamentoRepository, AgendamentoRepository>();
 builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<ILancamentoRepository, LancamentoRepository>();
+
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
