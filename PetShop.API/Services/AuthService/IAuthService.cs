@@ -1,5 +1,4 @@
-﻿using PetShop.API.Dto;
-using PetShop.API.Dto.LoginDto;
+﻿using PetShop.API.Dto.LoginDto;
 using PetShop.API.Dto.RegistroDto;
 using PetShop.API.Models;
 

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Servico;
 using PetShop.API.Models;
 using PetShop.API.Services.Servico;
-using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
 
 namespace PetShop.API.Controllers
 {

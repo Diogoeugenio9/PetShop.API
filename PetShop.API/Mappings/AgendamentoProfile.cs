@@ -10,8 +10,7 @@ namespace PetShop.API.Mappings
         {
             CreateMap<AgendamentoModel, AgendamentoDto>()
                 .ForMember(dest => dest.NomePet, opt => opt.MapFrom(src => src.Pet.Nome))
-                .ForMember(dest => dest.NomeServico, opt => opt.MapFrom(src => src.Servico.Nome))
-                .ReverseMap();
+                .ForMember(dest => dest.NomeServico, opt => opt.MapFrom(src => src.Servico.Nome));
         }
     }
 }

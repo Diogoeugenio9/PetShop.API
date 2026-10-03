@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PetShop.API.Data;
+﻿using PetShop.API.Data;
 using PetShop.API.Models;
+using PetShop.API.Repository.Interface;
 
 namespace PetShop.API.Repository
 {
@@ -15,7 +15,7 @@ namespace PetShop.API.Repository
 
         public AdministradorModel BuscarPorEmail(string email)
         {
-            return _context.Administradores.FirstOrDefault(a => a.Email == email);
+            return _context.Administradores.FirstOrDefault(a => a.Email.ToLower() == email);
         }
 
         public AdministradorModel BuscarPorId(int id)
@@ -31,7 +31,7 @@ namespace PetShop.API.Repository
 
         public bool ExisteEmail(string email)
         {
-            return _context.Administradores.Any(a => a.Email == email);
+            return _context.Administradores.Any(a => a.Email.ToLower() == email);
         }
     }
 }

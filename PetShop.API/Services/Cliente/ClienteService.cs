@@ -2,6 +2,7 @@
 using PetShop.API.Dto.Cliente;
 using PetShop.API.Models;
 using PetShop.API.Repository.Interface;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Services.Cliente
 {
@@ -16,37 +17,36 @@ namespace PetShop.API.Services.Cliente
             _mapper = mapper;
         }
 
-       
         public async Task<List<ClienteDto>> ListarClientes()
         {
             var clientes = await _repository.GetAllAsync();
             return _mapper.Map<List<ClienteDto>>(clientes);
         }
 
-        
-        public async Task<ClienteDto?> BuscarClientePorId(int id)
+        public async Task<ClienteDto> BuscarClientePorId(int id)
         {
             var cliente = await _repository.GetByIdAsync(id);
-            return _mapper.Map<ClienteDto?>(cliente);
+            return _mapper.Map<ClienteDto>(cliente);
         }
 
-        
-        public async Task<ClienteDto?> BuscarClientePorIdPet(int idPet)
+        public async Task<ClienteDto> BuscarClientePorIdPet(int idPet)
         {
             var cliente = await _repository.GetByPetId(idPet);
-            return _mapper.Map<ClienteDto?>(cliente);
+            return _mapper.Map<ClienteDto>(cliente);
         }
 
-        
         public async Task<ClienteDto> CriarCliente(ClienteDto dto)
         {
             var cliente = _mapper.Map<ClienteModel>(dto);
+            cliente.Id = 0;
+            cliente.DataCadastro = DataHoraBrasil.Agora;
+            cliente.Ativo = true;
+
             await _repository.AddAsync(cliente);
             return _mapper.Map<ClienteDto>(cliente);
         }
 
-          
-        public async Task<ClienteDto?> EditarCliente(ClienteDto dto)
+        public async Task<ClienteDto> EditarCliente(ClienteDto dto)
         {
             var cliente = await _repository.GetByIdAsync(dto.Id);
             if (cliente == null) return null;
@@ -57,7 +57,6 @@ namespace PetShop.API.Services.Cliente
             return _mapper.Map<ClienteDto>(cliente);
         }
 
-        
         public async Task<bool> ExcluirCliente(int idCliente)
         {
             var cliente = await _repository.GetByIdAsync(idCliente);

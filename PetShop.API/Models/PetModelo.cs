@@ -1,4 +1,6 @@
-﻿namespace PetShop.API.Models
+﻿using System.Text.Json.Serialization;
+
+namespace PetShop.API.Models
 {
     public class PetModelo
     {
@@ -11,11 +13,11 @@
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
 
+        [JsonIgnore]
+        public bool Excluido { get; set; }
 
         public int ClienteId { get; set; }
 
-        // RELACIONAMENTO DE BANCO DE DADOS
         public virtual ClienteModel Cliente { get; set; }
-
     }
 }

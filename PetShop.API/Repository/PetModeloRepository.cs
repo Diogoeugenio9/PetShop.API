@@ -19,7 +19,7 @@ namespace PetShop.API.Repository
 
         public async Task DeleteAsync(PetModelo pet)
         {
-            _context.PetsModelo.Remove(pet);
+            pet.Excluido = true;
             await _context.SaveChangesAsync();
         }
 
@@ -27,27 +27,30 @@ namespace PetShop.API.Repository
         {
             return await _context.PetsModelo
                 .Include(p => p.Cliente)
+                .Where(p => !p.Excluido)
                 .ToListAsync();
         }
 
-        public async Task<PetModelo?> GetByIdAsync(int id)
+        public async Task<PetModelo> GetByIdAsync(int id)
         {
             return await _context.PetsModelo
                 .Include(p => p.Cliente)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id && !p.Excluido);
         }
 
         public async Task<List<PetModelo>> GetByClienteIdAsync(int clienteId)
         {
             return await _context.PetsModelo
                 .Include(p => p.Cliente)
-                .Where(p => p.ClienteId == clienteId)
+                .Where(p => p.ClienteId == clienteId && !p.Excluido)
                 .ToListAsync();
         }
 
         public async Task UpdateAsync(PetModelo pet)
         {
-            _context.PetsModelo.Update(pet);
+            if (_context.Entry(pet).State == EntityState.Detached)
+                _context.PetsModelo.Update(pet);
+
             await _context.SaveChangesAsync();
         }
     }

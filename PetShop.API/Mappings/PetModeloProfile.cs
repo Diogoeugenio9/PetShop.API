@@ -2,11 +2,17 @@
 using PetShop.API.Dto.Pet;
 using PetShop.API.Models;
 
-public class PetModeloProfile : Profile 
+namespace PetShop.API.Mappings
 {
-    public PetModeloProfile()
+    public class PetModeloProfile : Profile
     {
-        CreateMap<PetModeloDto, PetModelo>();
-        CreateMap<PetModelo, PetModeloDto>();
+        public PetModeloProfile()
+        {
+            CreateMap<PetModeloDto, PetModelo>()
+                .ForMember(dest => dest.DataCadastro, opt => opt.Ignore())
+                .ForMember(dest => dest.Cliente, opt => opt.Ignore());
+
+            CreateMap<PetModelo, PetModeloDto>();
+        }
     }
 }

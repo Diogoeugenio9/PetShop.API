@@ -1,6 +1,6 @@
 ﻿using PetShop.API.Models;
 
-namespace PetShop.API.Repository
+namespace PetShop.API.Repository.Interface
 {
     public interface IAdministradorRepository
     {

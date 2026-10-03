@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetShop.API.Data;
 using PetShop.API.Dto.Dashboard;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Services.Dashboard
 {
@@ -15,35 +16,61 @@ namespace PetShop.API.Services.Dashboard
 
         public async Task<DashboardStatsDto> ObterStats()
         {
-            var hoje = DateTime.Today;
+            var hoje = DataHoraBrasil.Hoje;
+            var amanha = hoje.AddDays(1);
             var inicioMes = new DateTime(hoje.Year, hoje.Month, 1);
+            var inicioUmAno = inicioMes.AddMonths(-11);
 
-            var totalClientes = await _context.Clientes.CountAsync();
-            var totalPets = await _context.PetsModelo.CountAsync();
+            var totalClientes = await _context.Clientes.CountAsync(c => !c.Excluido);
+            var totalPets = await _context.PetsModelo.CountAsync(p => !p.Excluido);
+
+            var lancamentos = await _context.Lancamentos
+                .Where(l => l.Data >= inicioUmAno && l.Data < amanha)
+                .Select(l => new LancamentoResumo(l.Data, l.Tipo, l.Valor))
+                .ToListAsync();
+
+            var agendamentos = await _context.Agendamentos
+                .Where(a => a.DataHora >= inicioUmAno && a.DataHora < amanha)
+                .Select(a => new AgendamentoResumo(a.DataHora, a.Status, a.Servico.Nome, a.Servico.Preco))
+                .ToListAsync();
+
+            agendamentos = agendamentos
+                .Where(a => !StatusAgendamento.EhCancelado(a.Status))
+                .ToList();
 
             var agendamentosHoje = await _context.Agendamentos
-                .CountAsync(a => a.DataHora.Date == hoje);
+                .Where(a => a.DataHora >= hoje && a.DataHora < amanha)
+                .Select(a => a.Status)
+                .ToListAsync();
 
-            var receitaMes = await _context.Lancamentos
-                .Where(l =>
-                    l.Tipo == "receita" &&
-                    l.Data >= inicioMes &&
-                    l.Data < inicioMes.AddMonths(1))
-                .SumAsync(l => (decimal?)l.Valor) ?? 0;
-
-            var grafico = await ObterGrafico();
-            var servicosDistribuicao = await ObterServicosDistribuicao();
-            var faturamentoPorServico = await ObterFaturamentoPorServico();
+            var receitaMes = lancamentos
+                .Where(l => l.Data >= inicioMes && EhTipo(l.Tipo, "receita"))
+                .Sum(l => l.Valor);
 
             return new DashboardStatsDto
             {
                 TotalClientes = totalClientes,
                 TotalPets = totalPets,
-                AgendamentosHoje = agendamentosHoje,
+                AgendamentosHoje = agendamentosHoje.Count(s => !StatusAgendamento.EhCancelado(s)),
                 ReceitaMes = receitaMes,
-                Grafico = grafico,
-                ServicosDistribuicao = servicosDistribuicao,
-                FaturamentoPorServico = faturamentoPorServico,
+                Grafico = new GraficoDto
+                {
+                    TresMeses = MontarGrafico(lancamentos, inicioMes, 3),
+                    SeisMeses = MontarGrafico(lancamentos, inicioMes, 6),
+                    UmAno = MontarGrafico(lancamentos, inicioMes, 12)
+                },
+                ServicosDistribuicao = new ServicosDistribuicaoDto
+                {
+                    TresMeses = MontarDistribuicao(agendamentos, inicioMes.AddMonths(-2)),
+                    SeisMeses = MontarDistribuicao(agendamentos, inicioMes.AddMonths(-5)),
+                    UmAno = MontarDistribuicao(agendamentos, inicioUmAno)
+                },
+                FaturamentoPorServico = new FaturamentoPorServicoDto
+                {
+                    TresMeses = MontarFaturamento(agendamentos, inicioMes.AddMonths(-2)),
+                    SeisMeses = MontarFaturamento(agendamentos, inicioMes.AddMonths(-5)),
+                    UmAno = MontarFaturamento(agendamentos, inicioUmAno)
+                },
                 MetaMensal = new MetaMensalDto
                 {
                     TresMeses = new MetaDto(),
@@ -53,106 +80,66 @@ namespace PetShop.API.Services.Dashboard
             };
         }
 
-        private async Task<GraficoDto> ObterGrafico()
+        private static List<GraficoMesDto> MontarGrafico(List<LancamentoResumo> lancamentos, DateTime inicioMesAtual, int quantidadeMeses)
         {
-            var hoje = DateTime.Today;
+            var resultado = new List<GraficoMesDto>();
 
-            var inicioTresMeses = hoje.AddMonths(-2);
-            var inicioSeisMeses = hoje.AddMonths(-5);
-            var inicioUmAno = hoje.AddMonths(-11);
-
-            return new GraficoDto
+            for (var i = quantidadeMeses - 1; i >= 0; i--)
             {
-                TresMeses = await ObterDadosGrafico(inicioTresMeses, hoje),
-                SeisMeses = await ObterDadosGrafico(inicioSeisMeses, hoje),
-                UmAno = await ObterDadosGrafico(inicioUmAno, hoje)
-            };
-        }
+                var inicio = inicioMesAtual.AddMonths(-i);
+                var fim = inicio.AddMonths(1);
+                var doMes = lancamentos.Where(l => l.Data >= inicio && l.Data < fim).ToList();
 
-        private async Task<List<GraficoMesDto>> ObterDadosGrafico(
-            DateTime inicio,
-            DateTime fim)
-        {
-            var lancamentos = await _context.Lancamentos
-                .Where(l => l.Data >= inicio && l.Data <= fim)
-                .ToListAsync();
-
-            return lancamentos
-                .GroupBy(l => new { l.Data.Year, l.Data.Month })
-                .OrderBy(g => g.Key.Year)
-                .ThenBy(g => g.Key.Month)
-                .Select(g => new GraficoMesDto
+                resultado.Add(new GraficoMesDto
                 {
-                    Mes = new DateTime(g.Key.Year, g.Key.Month, 1)
-                        .ToString("MMM"),
-                    Receitas = g
-                        .Where(l => l.Tipo == "receita")
-                        .Sum(l => l.Valor),
-                    Despesas = g
-                        .Where(l => l.Tipo == "despesa")
-                        .Sum(l => l.Valor)
-                })
-                .ToList();
+                    Mes = NomeDoMes(inicio),
+                    Receitas = doMes.Where(l => EhTipo(l.Tipo, "receita")).Sum(l => l.Valor),
+                    Despesas = doMes.Where(l => EhTipo(l.Tipo, "despesa")).Sum(l => l.Valor)
+                });
+            }
+
+            return resultado;
         }
 
-        private async Task<ServicosDistribuicaoDto> ObterServicosDistribuicao()
+        private static List<ServicoDistribuicaoItemDto> MontarDistribuicao(List<AgendamentoResumo> agendamentos, DateTime inicio)
         {
-            var hoje = DateTime.Today;
-
-            return new ServicosDistribuicaoDto
-            {
-                TresMeses = await ObterDistribuicao(hoje.AddMonths(-2), hoje),
-                SeisMeses = await ObterDistribuicao(hoje.AddMonths(-5), hoje),
-                UmAno = await ObterDistribuicao(hoje.AddMonths(-11), hoje)
-            };
-        }
-
-        private async Task<List<ServicoDistribuicaoItemDto>> ObterDistribuicao(
-            DateTime inicio,
-            DateTime fim)
-        {
-            return await _context.Agendamentos
-                .Where(a => a.DataHora.Date >= inicio && a.DataHora.Date <= fim)
-                .Include(a => a.Servico)
-                .GroupBy(a => a.Servico.Nome)
+            return agendamentos
+                .Where(a => a.DataHora >= inicio)
+                .GroupBy(a => a.Servico)
                 .Select(g => new ServicoDistribuicaoItemDto
                 {
                     Nome = g.Key,
                     Valor = g.Count()
                 })
-                .ToListAsync();
+                .OrderByDescending(i => i.Valor)
+                .ToList();
         }
 
-        private async Task<FaturamentoPorServicoDto> ObterFaturamentoPorServico()
+        private static List<FaturamentoServicoItemDto> MontarFaturamento(List<AgendamentoResumo> agendamentos, DateTime inicio)
         {
-            var hoje = DateTime.Today;
-
-            return new FaturamentoPorServicoDto
-            {
-                TresMeses = await ObterFaturamento(hoje.AddMonths(-2), hoje),
-                SeisMeses = await ObterFaturamento(hoje.AddMonths(-5), hoje),
-                UmAno = await ObterFaturamento(hoje.AddMonths(-11), hoje)
-            };
-        }
-
-        private async Task<List<FaturamentoServicoItemDto>> ObterFaturamento(
-            DateTime inicio,
-            DateTime fim)
-        {
-            return await _context.Agendamentos
-                .Where(a => a.DataHora.Date >= inicio && a.DataHora.Date <= fim)
-                .Include(a => a.Servico)
-                .GroupBy(a => new
-                {
-                    a.ServicoId,
-                    a.Servico.Nome
-                })
+            return agendamentos
+                .Where(a => a.DataHora >= inicio)
+                .GroupBy(a => a.Servico)
                 .Select(g => new FaturamentoServicoItemDto
                 {
-                    Servico = g.Key.Nome,
-                    Faturamento = g.Sum(a => a.Servico.Preco)
+                    Servico = g.Key,
+                    Faturamento = g.Sum(a => a.Preco)
                 })
-                .ToListAsync();
+                .OrderByDescending(i => i.Faturamento)
+                .ToList();
         }
+
+        private static string NomeDoMes(DateTime data)
+        {
+            var nome = data.ToString("MMM", DataHoraBrasil.Cultura).TrimEnd('.');
+            return nome.Length == 0 ? nome : char.ToUpper(nome[0], DataHoraBrasil.Cultura) + nome.Substring(1);
+        }
+
+        private static bool EhTipo(string tipo, string esperado)
+            => string.Equals(tipo?.Trim(), esperado, StringComparison.OrdinalIgnoreCase);
+
+        private record LancamentoResumo(DateTime Data, string Tipo, decimal Valor);
+
+        private record AgendamentoResumo(DateTime DataHora, string Status, string Servico, decimal Preco);
     }
 }

@@ -20,27 +20,32 @@ namespace PetShop.API.Repository
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var produto = await _context.Produtos.FindAsync(id);
+            var produto = await GetByIdAsync(id);
             if (produto == null) return false;
 
-            _context.Produtos.Remove(produto);
+            produto.Excluido = true;
             await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<List<ProdutoModel>> GetAllAsync()
         {
-            return await _context.Produtos.ToListAsync();
+            return await _context.Produtos
+                .Where(p => !p.Excluido)
+                .ToListAsync();
         }
 
-        public async Task<ProdutoModel?> GetByIdAsync(int id)
+        public async Task<ProdutoModel> GetByIdAsync(int id)
         {
-            return await _context.Produtos.FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Produtos
+                .FirstOrDefaultAsync(p => p.Id == id && !p.Excluido);
         }
 
         public async Task<ProdutoModel> UpdateAsync(ProdutoModel produto)
         {
-            _context.Produtos.Update(produto);
+            if (_context.Entry(produto).State == EntityState.Detached)
+                _context.Produtos.Update(produto);
+
             await _context.SaveChangesAsync();
             return produto;
         }

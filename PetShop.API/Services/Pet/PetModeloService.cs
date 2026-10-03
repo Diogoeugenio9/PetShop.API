@@ -2,18 +2,20 @@
 using PetShop.API.Dto.Pet;
 using PetShop.API.Models;
 using PetShop.API.Repository.Interface;
-using System.Security.Cryptography;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Services.Pet
 {
     public class PetModeloService : IPetModeloService
     {
         private readonly IPetModeloRepository _repository;
+        private readonly IClienteRepository _clienteRepository;
         private readonly IMapper _mapper;
 
-        public PetModeloService(IPetModeloRepository repository, IMapper mapper)
+        public PetModeloService(IPetModeloRepository repository, IClienteRepository clienteRepository, IMapper mapper)
         {
             _repository = repository;
+            _clienteRepository = clienteRepository;
             _mapper = mapper;
         }
 
@@ -29,9 +31,11 @@ namespace PetShop.API.Services.Pet
 
         public async Task<PetModelo> CriarPet(PetModeloDto petCriacaoDto)
         {
+            await GarantirClienteDaLoja(petCriacaoDto.ClienteId);
+
             var pet = _mapper.Map<PetModelo>(petCriacaoDto);
-            
-            pet.DataCadastro = DateTime.Now;
+            pet.Id = 0;
+            pet.DataCadastro = DataHoraBrasil.Agora;
             pet.Ativo = true;
 
             await _repository.AddAsync(pet);
@@ -44,6 +48,9 @@ namespace PetShop.API.Services.Pet
 
             if (pet == null)
                 return null;
+
+            if (petEdicaoDto.ClienteId != pet.ClienteId)
+                await GarantirClienteDaLoja(petEdicaoDto.ClienteId);
 
             _mapper.Map(petEdicaoDto, pet);
             await _repository.UpdateAsync(pet);
@@ -65,6 +72,13 @@ namespace PetShop.API.Services.Pet
         public async Task<List<PetModelo>> ListarPets()
         {
             return await _repository.GetAllAsync();
+        }
+
+        private async Task GarantirClienteDaLoja(int clienteId)
+        {
+            var cliente = await _clienteRepository.GetByIdAsync(clienteId);
+            if (cliente == null)
+                throw new RegraDeNegocioException("Cliente não encontrado.");
         }
     }
 }

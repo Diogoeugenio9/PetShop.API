@@ -2,14 +2,14 @@
 
 namespace PetShop.API.Models
 {
-    public class ClienteModel
+    public class ClienteModel : IPertenceALoja
     {
         public int Id { get; set; }
-   
+
         public string Nome { get; set; }
         public string Sobrenome { get; set; }
 
-        public string Cpf { get; set; } 
+        public string Cpf { get; set; }
 
         public string Email { get; set; }
         public string Telefone { get; set; }
@@ -21,9 +21,14 @@ namespace PetShop.API.Models
         public string Cidade { get; set; }
         public string Estado { get; set; }
 
-       
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
+
+        [JsonIgnore]
+        public bool Excluido { get; set; }
+
+        [JsonIgnore]
+        public int AdministradorId { get; set; }
 
         [JsonIgnore]
         public ICollection<PetModelo> Pets { get; set; }

@@ -2,11 +2,14 @@
 using PetShop.API.Dto.Cliente;
 using PetShop.API.Models;
 
-public class ClienteProfile : Profile
+namespace PetShop.API.Mappings
 {
-    public ClienteProfile()
+    public class ClienteProfile : Profile
     {
-        CreateMap<ClienteDto, ClienteModel>();
-        CreateMap<ClienteModel, ClienteDto>();
+        public ClienteProfile()
+        {
+            CreateMap<ClienteDto, ClienteModel>();
+            CreateMap<ClienteModel, ClienteDto>();
+        }
     }
 }

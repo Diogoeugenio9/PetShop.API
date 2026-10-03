@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PetShop.API.Dto;
 using PetShop.API.Dto.LoginDto;
 using PetShop.API.Dto.RegistroDto;
@@ -8,6 +9,7 @@ namespace PetShop.API.Controllers
 {
     [ApiController]
     [Route("api/admin/autenticacao")]
+    [EnableRateLimiting("autenticacao")]
     public class AutenticacaoController : ControllerBase
     {
         private readonly IAuthService _authService;

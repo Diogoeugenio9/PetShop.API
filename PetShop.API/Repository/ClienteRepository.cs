@@ -3,7 +3,7 @@ using PetShop.API.Data;
 using PetShop.API.Models;
 using PetShop.API.Repository.Interface;
 
-namespace PetShop.API.Repositories.Cliente
+namespace PetShop.API.Repository
 {
     public class ClienteRepository : IClienteRepository
     {
@@ -15,15 +15,17 @@ namespace PetShop.API.Repositories.Cliente
         }
 
         public async Task<List<ClienteModel>> GetAllAsync()
-            => await _context.Clientes.ToListAsync();
+            => await _context.Clientes
+                .Where(c => !c.Excluido)
+                .ToListAsync();
 
-        public async Task<ClienteModel?> GetByIdAsync(int id)
-            => await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+        public async Task<ClienteModel> GetByIdAsync(int id)
+            => await _context.Clientes
+                .FirstOrDefaultAsync(c => c.Id == id && !c.Excluido);
 
-        public async Task<ClienteModel?> GetByPetId(int petId)
+        public async Task<ClienteModel> GetByPetId(int petId)
             => await _context.PetsModelo
-                .Include(p => p.Cliente)
-                .Where(p => p.Id == petId)
+                .Where(p => p.Id == petId && !p.Excluido)
                 .Select(p => p.Cliente)
                 .FirstOrDefaultAsync();
 
@@ -35,13 +37,23 @@ namespace PetShop.API.Repositories.Cliente
 
         public async Task UpdateAsync(ClienteModel cliente)
         {
-            _context.Clientes.Update(cliente);
+            if (_context.Entry(cliente).State == EntityState.Detached)
+                _context.Clientes.Update(cliente);
+
             await _context.SaveChangesAsync();
         }
 
         public async Task Delete(ClienteModel cliente)
         {
-            _context.Clientes.Remove(cliente);
+            cliente.Excluido = true;
+
+            var pets = await _context.PetsModelo
+                .Where(p => p.ClienteId == cliente.Id && !p.Excluido)
+                .ToListAsync();
+
+            foreach (var pet in pets)
+                pet.Excluido = true;
+
             await _context.SaveChangesAsync();
         }
     }

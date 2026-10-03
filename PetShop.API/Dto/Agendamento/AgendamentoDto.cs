@@ -1,17 +1,23 @@
-﻿namespace PetShop.API.Dto.Agendamento
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PetShop.API.Dto.Agendamento
 {
     public class AgendamentoDto
     {
         public int Id { get; set; }
         public DateTime DataHora { get; set; }
+
+        [StringLength(30)]
         public string Status { get; set; }
 
         // Chaves estrangeiras
+        [Range(1, int.MaxValue, ErrorMessage = "Informe o pet.")]
         public int PetId { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Informe o serviço.")]
         public int ServicoId { get; set; }
 
-        // Informações adicionais (sem ciclo)
-        public string? NomePet { get; set; }
-        public string? NomeServico { get; set; }
+        public string NomePet { get; set; }
+        public string NomeServico { get; set; }
     }
 }

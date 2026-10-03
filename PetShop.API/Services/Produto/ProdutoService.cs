@@ -2,6 +2,7 @@
 using PetShop.API.Dto.Produto;
 using PetShop.API.Models;
 using PetShop.API.Repository.Interface;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Services.Produto
 {
@@ -16,7 +17,7 @@ namespace PetShop.API.Services.Produto
             _mapper = mapper;
         }
 
-        public async Task<ProdutoModel?> BuscarProdutoPorId(int idProduto)
+        public async Task<ProdutoModel> BuscarProdutoPorId(int idProduto)
         {
             return await _repository.GetByIdAsync(idProduto);
         }
@@ -24,13 +25,14 @@ namespace PetShop.API.Services.Produto
         public async Task<ProdutoModel> CriarProduto(ProdutoModeloDto produtoCriacaoDto)
         {
             var produto = _mapper.Map<ProdutoModel>(produtoCriacaoDto);
+            produto.Id = 0;
             produto.Ativo = true;
 
             await _repository.AddAsync(produto);
             return produto;
         }
 
-        public async Task<ProdutoModel?> EditarProduto(ProdutoModeloDto produtoEdicaoDto)
+        public async Task<ProdutoModel> EditarProduto(ProdutoModeloDto produtoEdicaoDto)
         {
             var produto = await _repository.GetByIdAsync(produtoEdicaoDto.Id);
 
@@ -45,11 +47,6 @@ namespace PetShop.API.Services.Produto
 
         public async Task<bool> ExcluirProduto(int idProduto)
         {
-            var produto = await _repository.GetByIdAsync(idProduto);
-
-            if (produto == null)
-                return false;
-
             return await _repository.DeleteAsync(idProduto);
         }
 
@@ -58,19 +55,28 @@ namespace PetShop.API.Services.Produto
             return await _repository.GetAllAsync();
         }
 
-        public async Task<ProdutoModel?> MovimentarProduto(MovimentarProdutoDto movimentarProdutoDto)
+        public async Task<ProdutoModel> MovimentarProduto(MovimentarProdutoDto movimentarProdutoDto)
         {
+            var tipo = TextoNormalizado.Normalizar(movimentarProdutoDto.Tipo);
+
+            if (tipo != "entrada" && tipo != "saida")
+                throw new RegraDeNegocioException("Tipo de movimentação inválido. Use \"entrada\" ou \"saida\".");
+
             var produto = await _repository.GetByIdAsync(movimentarProdutoDto.ProdutoId);
 
             if (produto == null)
                 return null;
 
-            if (movimentarProdutoDto.Tipo == "entrada")
+            if (tipo == "entrada")
             {
                 produto.Quantidade += movimentarProdutoDto.Quantidade;
             }
-            else if (movimentarProdutoDto.Tipo == "saida")
+            else
             {
+                if (movimentarProdutoDto.Quantidade > produto.Quantidade)
+                    throw new RegraDeNegocioException(
+                        $"Estoque insuficiente. Disponível: {produto.Quantidade} {produto.Unidade}".Trim() + ".");
+
                 produto.Quantidade -= movimentarProdutoDto.Quantidade;
             }
 

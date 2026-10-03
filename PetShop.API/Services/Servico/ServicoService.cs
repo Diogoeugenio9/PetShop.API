@@ -2,7 +2,6 @@
 using PetShop.API.Dto.Servico;
 using PetShop.API.Models;
 using PetShop.API.Repository.Interface;
-using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
 
 namespace PetShop.API.Services.Servico
 {
@@ -17,7 +16,7 @@ namespace PetShop.API.Services.Servico
             _mapper = mapper;
         }
 
-        public async Task<ServicoModel?> BuscarServicoPorId(int idServico)
+        public async Task<ServicoModel> BuscarServicoPorId(int idServico)
         {
             return await _repository.GetByIdAsync(idServico);
         }
@@ -25,13 +24,14 @@ namespace PetShop.API.Services.Servico
         public async Task<ServicoModel> CriarServico(ServicoDto servicoCriacaoDto)
         {
             var servico = _mapper.Map<ServicoModel>(servicoCriacaoDto);
+            servico.Id = 0;
             servico.Ativo = true; // sempre ativo ao criar
 
             await _repository.AddAsync(servico);
             return servico;
         }
 
-        public async Task<ServicoModel?> EditarServico(ServicoDto servicoEdicaoDto)
+        public async Task<ServicoModel> EditarServico(ServicoDto servicoEdicaoDto)
         {
             var servico = await _repository.GetByIdAsync(servicoEdicaoDto.Id);
 
@@ -46,11 +46,6 @@ namespace PetShop.API.Services.Servico
 
         public async Task<bool> ExcluirServico(int idServico)
         {
-            var servico = await _repository.GetByIdAsync(idServico);
-
-            if (servico == null)
-                return false;
-
             return await _repository.DeleteAsync(idServico);
         }
 

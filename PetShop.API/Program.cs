@@ -1,28 +1,27 @@
+﻿using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PetShop.API.Data;
-using PetShop.API.Mappings;
-using PetShop.API.Repositories.Cliente;
 using PetShop.API.Repository;
 using PetShop.API.Repository.Interface;
 using PetShop.API.Services;
 using PetShop.API.Services.Agendamento;
 using PetShop.API.Services.Cliente;
-using PetShop.API.Services.Pet;
-using PetShop.API.Services.Servico;
-using PetShop.API.Services.Servico.PetShop.API.Services.Servico;
-using PetShop.API.Services.Produto;
-using System.Text;
-using PetShop.API.Repository.Interface;
-using PetShop.API.Repository;
-using PetShop.API.Services.Lancamento;
 using PetShop.API.Services.Dashboard;
+using PetShop.API.Services.Lancamento;
+using PetShop.API.Services.Pet;
+using PetShop.API.Services.Produto;
+using PetShop.API.Services.Servico;
+using PetShop.API.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -69,12 +68,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+var origensPermitidas = builder.Configuration.GetSection("Cors:Origens").Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFront",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+    options.AddPolicy("AllowFront", policy =>
+    {
+        if (origensPermitidas.Length > 0)
+            policy.WithOrigins(origensPermitidas);
+        else
+            policy.AllowAnyOrigin();
+
+        policy.AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("autenticacao", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
 });
 
 builder.Services.AddScoped<IClienteService, ClienteService>();
@@ -94,8 +114,7 @@ builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<ILancamentoRepository, LancamentoRepository>();
 
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -104,12 +123,38 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseExceptionHandler(appErro => appErro.Run(async context =>
+{
+    var erro = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+    var (status, mensagem) = erro switch
+    {
+        RegraDeNegocioException regra => (StatusCodes.Status400BadRequest, regra.Message),
+        DbUpdateException => (StatusCodes.Status409Conflict, "Não foi possível salvar: o registro está ligado a outros dados."),
+        _ => (StatusCodes.Status500InternalServerError, "Ocorreu um erro inesperado. Tente novamente.")
+    };
+
+    if (status == StatusCodes.Status500InternalServerError || erro is DbUpdateException)
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(erro, "Erro ao processar {Metodo} {Caminho}", context.Request.Method, context.Request.Path);
+    }
+
+    context.Response.StatusCode = status;
+    await context.Response.WriteAsJsonAsync(new { mensagem });
+}));
+
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Habilitado"))
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFront");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

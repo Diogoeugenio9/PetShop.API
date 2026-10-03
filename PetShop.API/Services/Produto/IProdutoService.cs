@@ -6,11 +6,11 @@ namespace PetShop.API.Services.Produto
     public interface IProdutoService
     {
         Task<List<ProdutoModel>> ListarProdutos();
-        Task<ProdutoModel?> BuscarProdutoPorId(int idProduto);
+        Task<ProdutoModel> BuscarProdutoPorId(int idProduto);
 
         Task<ProdutoModel> CriarProduto(ProdutoModeloDto produtoCriacaoDto);
-        Task<ProdutoModel?> EditarProduto(ProdutoModeloDto produtoEdicaoDto);
+        Task<ProdutoModel> EditarProduto(ProdutoModeloDto produtoEdicaoDto);
         Task<bool> ExcluirProduto(int idProduto);
-        Task<ProdutoModel?> MovimentarProduto(MovimentarProdutoDto movimentarProdutoDto);
+        Task<ProdutoModel> MovimentarProduto(MovimentarProdutoDto movimentarProdutoDto);
     }
 }

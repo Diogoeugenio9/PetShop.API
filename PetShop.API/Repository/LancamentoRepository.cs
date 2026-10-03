@@ -20,7 +20,7 @@ namespace PetShop.API.Repository
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var lancamento = await _context.Lancamentos.FindAsync(id);
+            var lancamento = await _context.Lancamentos.FirstOrDefaultAsync(l => l.Id == id);
 
             if (lancamento == null)
                 return false;
@@ -36,7 +36,7 @@ namespace PetShop.API.Repository
             return await _context.Lancamentos.ToListAsync();
         }
 
-        public async Task<LancamentoModel?> GetByIdAsync(int id)
+        public async Task<LancamentoModel> GetByIdAsync(int id)
         {
             return await _context.Lancamentos.FirstOrDefaultAsync(l => l.Id == id);
         }
