@@ -13,6 +13,9 @@ namespace PetShop.API.Models
         public string FormaPagamento { get; set; }
         public string Observacoes { get; set; }
 
+        public int? AgendamentoId { get; set; }
+        public int? ServicoId { get; set; }
+
         [JsonIgnore]
         public int AdministradorId { get; set; }
     }

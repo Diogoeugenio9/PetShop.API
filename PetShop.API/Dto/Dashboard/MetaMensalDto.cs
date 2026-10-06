@@ -16,7 +16,7 @@ namespace PetShop.API.Dto.Dashboard
 
     public class MetaDto
     {
-        public decimal Meta { get; set; }
+        public decimal? Meta { get; set; }
         public decimal Realizado { get; set; }
     }
 }

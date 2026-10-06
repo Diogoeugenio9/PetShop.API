@@ -4,6 +4,7 @@ using PetShop.API.Dto;
 using PetShop.API.Dto.LoginDto;
 using PetShop.API.Dto.RegistroDto;
 using PetShop.API.Services;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Controllers
 {
@@ -24,7 +25,7 @@ namespace PetShop.API.Controllers
         {
             var token = _authService.Login(dto);
             if (token == null)
-                return Unauthorized(new { mensagem = "E-mail ou senha inválidos." });
+                return Unauthorized(new RespostaErro("E-mail ou senha inválidos."));
 
             return Ok(new { token, administrador = new { email = dto.Email } });
         }
@@ -34,7 +35,7 @@ namespace PetShop.API.Controllers
         {
             var token = _authService.Registrar(dto);
             if (token == null)
-                return BadRequest(new { mensagem = "E-mail já cadastrado." });
+                return BadRequest(new RespostaErro("E-mail já cadastrado."));
 
             return Created("", new { token, administrador = new { email = dto.Email } });
         }

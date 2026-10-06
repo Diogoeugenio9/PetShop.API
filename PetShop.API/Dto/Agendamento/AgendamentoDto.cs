@@ -17,6 +17,9 @@ namespace PetShop.API.Dto.Agendamento
         [Range(1, int.MaxValue, ErrorMessage = "Informe o serviço.")]
         public int ServicoId { get; set; }
 
+        [StringLength(500)]
+        public string Observacoes { get; set; }
+
         public string NomePet { get; set; }
         public string NomeServico { get; set; }
     }

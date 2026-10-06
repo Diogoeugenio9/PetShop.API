@@ -28,6 +28,9 @@ namespace PetShop.API.Models
         public bool Excluido { get; set; }
 
         [JsonIgnore]
+        public string SenhaHash { get; set; }
+
+        [JsonIgnore]
         public int AdministradorId { get; set; }
 
         [JsonIgnore]

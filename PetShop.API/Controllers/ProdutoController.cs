@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Produto;
 using PetShop.API.Models;
 using PetShop.API.Services.Produto;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = Politicas.Administrador)]
     public class ProdutoController : ControllerBase
     {
         private readonly IProdutoService _produtoService;
@@ -31,7 +32,7 @@ namespace PetShop.API.Controllers
             var produto = await _produtoService.BuscarProdutoPorId(id);
 
             if (produto == null)
-                return NotFound("Produto não encontrado");
+                return NotFound(new RespostaErro("Produto não encontrado"));
 
             return Ok(produto);
         }
@@ -54,7 +55,7 @@ namespace PetShop.API.Controllers
             var produto = await _produtoService.EditarProduto(produtoEdicaoDto);
 
             if (produto == null)
-                return NotFound("Produto não encontrado");
+                return NotFound(new RespostaErro("Produto não encontrado"));
 
             return Ok(produto);
         }
@@ -65,7 +66,7 @@ namespace PetShop.API.Controllers
             var produto = await _produtoService.MovimentarProduto(movimentarProdutoDto);
 
             if (produto == null)
-                return NotFound("Produto não encontrado");
+                return NotFound(new RespostaErro("Produto não encontrado"));
 
             return Ok(produto);
         }
@@ -76,7 +77,7 @@ namespace PetShop.API.Controllers
             var sucesso = await _produtoService.ExcluirProduto(id);
 
             if (!sucesso)
-                return NotFound("Produto não encontrado");
+                return NotFound(new RespostaErro("Produto não encontrado"));
 
             return NoContent();
         }

@@ -8,7 +8,12 @@ namespace PetShop.API.Mappings
     {
         public ClienteProfile()
         {
-            CreateMap<ClienteDto, ClienteModel>();
+            CreateMap<ClienteDto, ClienteModel>()
+                .ForMember(dest => dest.SenhaHash, opt => opt.Ignore())
+                .ForMember(dest => dest.AdministradorId, opt => opt.Ignore())
+                .ForMember(dest => dest.Excluido, opt => opt.Ignore())
+                .ForMember(dest => dest.DataCadastro, opt => opt.Ignore())
+                .ForMember(dest => dest.Pets, opt => opt.Ignore());
             CreateMap<ClienteModel, ClienteDto>();
         }
     }

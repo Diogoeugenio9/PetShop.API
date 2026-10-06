@@ -26,5 +26,8 @@ namespace PetShop.API.Dto.Lancamento
 
         [StringLength(500)]
         public string Observacoes { get; set; }
+
+        public int? AgendamentoId { get; set; }
+        public int? ServicoId { get; set; }
     }
 }

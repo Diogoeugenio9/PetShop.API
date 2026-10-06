@@ -4,7 +4,8 @@
     {
         public int Id { get; set; }
         public DateTime DataHora { get; set; }
-        public string Status { get; set; }  
+        public string Status { get; set; }
+        public string Observacoes { get; set; }
 
         // Relacionamentos
         public int PetId { get; set; }

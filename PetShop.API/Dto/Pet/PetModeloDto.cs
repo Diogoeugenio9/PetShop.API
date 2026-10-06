@@ -19,6 +19,15 @@ namespace PetShop.API.Dto.Pet
         [Range(0, 50, ErrorMessage = "Idade deve estar entre 0 e 50.")]
         public int Idade { get; set; }
 
+        [StringLength(20)]
+        public string Sexo { get; set; }
+
+        [Range(0, 999, ErrorMessage = "Peso inválido.")]
+        public decimal? Peso { get; set; }
+
+        [StringLength(500)]
+        public string Observacoes { get; set; }
+
         public DateTime DataCadastro { get; set; }
 
         public bool Ativo { get; set; }

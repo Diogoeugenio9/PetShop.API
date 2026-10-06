@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Lancamento;
 using PetShop.API.Models;
 using PetShop.API.Services.Lancamento;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = Politicas.Administrador)]
     public class LancamentoController : ControllerBase
     {
         private readonly ILancamentoService _lancamentoService;
@@ -31,7 +32,7 @@ namespace PetShop.API.Controllers
             var lancamento = await _lancamentoService.BuscarLancamentoPorId(id);
 
             if (lancamento == null)
-                return NotFound("Lançamento não encontrado");
+                return NotFound(new RespostaErro("Lançamento não encontrado"));
 
             return Ok(lancamento);
         }
@@ -54,7 +55,7 @@ namespace PetShop.API.Controllers
             var lancamento = await _lancamentoService.EditarLancamento(lancamentoEdicaoDto);
 
             if (lancamento == null)
-                return NotFound("Lançamento não encontrado");
+                return NotFound(new RespostaErro("Lançamento não encontrado"));
 
             return Ok(lancamento);
         }
@@ -65,7 +66,7 @@ namespace PetShop.API.Controllers
             var sucesso = await _lancamentoService.ExcluirLancamento(id);
 
             if (!sucesso)
-                return NotFound("Lançamento não encontrado");
+                return NotFound(new RespostaErro("Lançamento não encontrado"));
 
             return NoContent();
         }

@@ -59,7 +59,8 @@ namespace PetShop.API.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
                 new Claim(ClaimTypes.Email, admin.Email ?? string.Empty),
-                new Claim(ClaimTypes.Name, admin.NomeLoja ?? string.Empty)
+                new Claim(ClaimTypes.Name, admin.NomeLoja ?? string.Empty),
+                new Claim(ClaimTypes.Role, PetShop.API.Utils.Politicas.Administrador)
             };
 
             var key = new SymmetricSecurityKey(

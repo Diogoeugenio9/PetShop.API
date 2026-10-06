@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetShop.API.Data;
 using PetShop.API.Dto.Dashboard;
+using PetShop.API.Services.Configuracao;
 using PetShop.API.Utils;
 
 namespace PetShop.API.Services.Dashboard
@@ -8,10 +9,12 @@ namespace PetShop.API.Services.Dashboard
     public class DashboardService : IDashboardService
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguracaoService _configuracaoService;
 
-        public DashboardService(AppDbContext context)
+        public DashboardService(AppDbContext context, IConfiguracaoService configuracaoService)
         {
             _context = context;
+            _configuracaoService = configuracaoService;
         }
 
         public async Task<DashboardStatsDto> ObterStats()
@@ -43,6 +46,9 @@ namespace PetShop.API.Services.Dashboard
                 .Select(a => a.Status)
                 .ToListAsync();
 
+            var configuracao = await _configuracaoService.ObterModelo(_context.AdministradorIdAtual);
+            var metaMensal = configuracao.MetaAgendamentosMensal;
+
             var receitaMes = lancamentos
                 .Where(l => l.Data >= inicioMes && EhTipo(l.Tipo, "receita"))
                 .Sum(l => l.Valor);
@@ -73,9 +79,9 @@ namespace PetShop.API.Services.Dashboard
                 },
                 MetaMensal = new MetaMensalDto
                 {
-                    TresMeses = new MetaDto(),
-                    SeisMeses = new MetaDto(),
-                    UmAno = new MetaDto()
+                    TresMeses = MontarMeta(agendamentos, inicioMes.AddMonths(-2), metaMensal, 3),
+                    SeisMeses = MontarMeta(agendamentos, inicioMes.AddMonths(-5), metaMensal, 6),
+                    UmAno = MontarMeta(agendamentos, inicioUmAno, metaMensal, 12)
                 }
             };
         }
@@ -127,6 +133,15 @@ namespace PetShop.API.Services.Dashboard
                 })
                 .OrderByDescending(i => i.Faturamento)
                 .ToList();
+        }
+
+        private static MetaDto MontarMeta(List<AgendamentoResumo> agendamentos, DateTime inicio, int? metaMensal, int quantidadeMeses)
+        {
+            return new MetaDto
+            {
+                Meta = metaMensal.HasValue ? metaMensal.Value * quantidadeMeses : null,
+                Realizado = agendamentos.Count(a => a.DataHora >= inicio)
+            };
         }
 
         private static string NomeDoMes(DateTime data)

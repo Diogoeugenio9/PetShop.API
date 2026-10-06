@@ -10,6 +10,9 @@ namespace PetShop.API.Models
         public string Especie { get; set; }
         public string Raca { get; set; }
         public int Idade { get; set; }
+        public string Sexo { get; set; }
+        public decimal? Peso { get; set; }
+        public string Observacoes { get; set; }
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
 

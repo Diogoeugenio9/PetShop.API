@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Servico;
 using PetShop.API.Models;
 using PetShop.API.Services.Servico;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = Politicas.Administrador)]
     public class ServicoController : ControllerBase
     {
         private readonly IServicoService _servicoService;
@@ -18,7 +19,6 @@ namespace PetShop.API.Controllers
             _servicoService = servicoService;
         }
 
-        
         [HttpGet("ListarServicos")]
         public async Task<ActionResult<List<ServicoModel>>> ListarServicos()
         {
@@ -26,18 +26,16 @@ namespace PetShop.API.Controllers
             return Ok(servicos);
         }
 
-       
         [HttpGet("BuscarServicoPorId/{idServico}")]
         public async Task<ActionResult<ServicoModel>> BuscarServicoPorId(int idServico)
         {
             var servico = await _servicoService.BuscarServicoPorId(idServico);
             if (servico == null)
-                return NotFound("Serviço não encontrado");
+                return NotFound(new RespostaErro("Serviço não encontrado"));
 
             return Ok(servico);
         }
 
-       
         [HttpPost("CriarServico")]
         public async Task<ActionResult<ServicoModel>> CriarServico(ServicoDto servicoCriacaoDto)
         {
@@ -45,24 +43,22 @@ namespace PetShop.API.Controllers
             return CreatedAtAction(nameof(BuscarServicoPorId), new { idServico = servico.Id }, servico);
         }
 
-        
         [HttpPut("EditarServico")]
         public async Task<ActionResult<ServicoModel>> EditarServico(ServicoDto servicoEdicaoDto)
         {
             var servico = await _servicoService.EditarServico(servicoEdicaoDto);
             if (servico == null)
-                return NotFound("Serviço não encontrado");
+                return NotFound(new RespostaErro("Serviço não encontrado"));
 
             return Ok(servico);
         }
 
-        
         [HttpDelete("ExcluirServico/{idServico}")]
         public async Task<IActionResult> ExcluirServico(int idServico)
         {
             var sucesso = await _servicoService.ExcluirServico(idServico);
             if (!sucesso)
-                return NotFound("Serviço não encontrado");
+                return NotFound(new RespostaErro("Serviço não encontrado"));
 
             return NoContent();
         }

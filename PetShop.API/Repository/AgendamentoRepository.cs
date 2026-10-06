@@ -2,6 +2,7 @@
 using PetShop.API.Data;
 using PetShop.API.Models;
 using PetShop.API.Repository.Interface;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Repository
 {
@@ -71,6 +72,15 @@ namespace PetShop.API.Repository
         public async Task<ServicoModel> GetServicoByIdAsync(int servicoId)
         {
             return await _context.Servicos.FirstOrDefaultAsync(s => s.Id == servicoId && !s.Excluido);
+        }
+
+        public Task MarcarComoConcluidoEmMemoria(AgendamentoModel agendamento)
+        {
+            var status = _context.Entry(agendamento).Property(a => a.Status);
+            status.CurrentValue = StatusAgendamento.Concluido;
+            status.OriginalValue = StatusAgendamento.Concluido;
+            status.IsModified = false;
+            return Task.CompletedTask;
         }
     }
 }

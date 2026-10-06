@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using PetShop.API.Models;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Data
 {
@@ -21,18 +22,11 @@ namespace PetShop.API.Data
         public DbSet<AdministradorModel> Administradores { get; set; }
         public DbSet<ProdutoModel> Produtos { get; set; }
         public DbSet<LancamentoModel> Lancamentos { get; set; }
+        public DbSet<VacinaModel> Vacinas { get; set; }
+        public DbSet<ConfiguracaoLojaModel> ConfiguracoesLoja { get; set; }
 
         public int AdministradorIdAtual
-        {
-            get
-            {
-                var usuario = _httpContextAccessor?.HttpContext?.User;
-                var valor = usuario?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                            ?? usuario?.FindFirst("nameid")?.Value;
-
-                return int.TryParse(valor, out var id) ? id : 0;
-            }
-        }
+            => _httpContextAccessor?.HttpContext?.User?.ObterAdministradorId() ?? 0;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -92,6 +86,40 @@ namespace PetShop.API.Data
                 .HasForeignKey(a => a.ServicoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<PetModelo>()
+                .Property(p => p.Peso)
+                .HasColumnType("decimal(6,2)");
+
+            modelBuilder.Entity<LancamentoModel>()
+                .HasIndex(l => l.AgendamentoId)
+                .IsUnique()
+                .HasFilter("[AgendamentoId] IS NOT NULL");
+
+            modelBuilder.Entity<VacinaModel>()
+                .HasOne(v => v.Pet)
+                .WithMany()
+                .HasForeignKey(v => v.PetId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<VacinaModel>()
+                .Property(v => v.NomeVacina)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelBuilder.Entity<ConfiguracaoLojaModel>()
+                .HasOne<AdministradorModel>()
+                .WithMany()
+                .HasForeignKey(c => c.AdministradorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ConfiguracaoLojaModel>()
+                .HasIndex(c => c.AdministradorId)
+                .IsUnique();
+
+            modelBuilder.Entity<ConfiguracaoLojaModel>()
+                .Property(c => c.DiasFuncionamento)
+                .HasMaxLength(20);
+
             modelBuilder.Entity<ClienteModel>()
                 .HasQueryFilter(c => c.AdministradorId == AdministradorIdAtual);
 
@@ -109,6 +137,12 @@ namespace PetShop.API.Data
 
             modelBuilder.Entity<AgendamentoModel>()
                 .HasQueryFilter(a => a.Pet.Cliente.AdministradorId == AdministradorIdAtual);
+
+            modelBuilder.Entity<VacinaModel>()
+                .HasQueryFilter(v => v.Pet.Cliente.AdministradorId == AdministradorIdAtual);
+
+            modelBuilder.Entity<ConfiguracaoLojaModel>()
+                .HasQueryFilter(c => c.AdministradorId == AdministradorIdAtual);
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -130,10 +164,10 @@ namespace PetShop.API.Data
                 if (entry.State == EntityState.Added)
                 {
                     var administradorId = AdministradorIdAtual;
-                    if (administradorId == 0)
-                        throw new InvalidOperationException("Não há administrador logado para vincular o registro.");
-
-                    entry.Entity.AdministradorId = administradorId;
+                    if (administradorId != 0)
+                        entry.Entity.AdministradorId = administradorId;
+                    else if (entry.Entity.AdministradorId == 0)
+                        throw new InvalidOperationException("Não há loja definida para vincular o registro.");
                 }
                 else if (entry.State == EntityState.Modified)
                 {

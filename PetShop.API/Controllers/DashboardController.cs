@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Dashboard;
 using PetShop.API.Services.Dashboard;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = Politicas.Administrador)]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

@@ -14,5 +14,7 @@ namespace PetShop.API.Repository.Interface
 
         Task<PetModelo> GetPetByIdAsync(int petId);
         Task<ServicoModel> GetServicoByIdAsync(int servicoId);
+
+        Task MarcarComoConcluidoEmMemoria(AgendamentoModel agendamento);
     }
 }

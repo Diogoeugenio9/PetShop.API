@@ -2,24 +2,46 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PetShop.API.Data;
 using PetShop.API.Repository;
 using PetShop.API.Repository.Interface;
 using PetShop.API.Services;
+using PetShop.API.Services.Agenda;
 using PetShop.API.Services.Agendamento;
+using PetShop.API.Services.ClienteAutenticacao;
+using PetShop.API.Services.Configuracao;
 using PetShop.API.Services.Cliente;
 using PetShop.API.Services.Dashboard;
 using PetShop.API.Services.Lancamento;
 using PetShop.API.Services.Pet;
+using PetShop.API.Services.Portal;
 using PetShop.API.Services.Produto;
 using PetShop.API.Services.Servico;
+using PetShop.API.Services.Vacina;
 using PetShop.API.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var erros = context.ModelState
+                .Where(e => e.Value.Errors.Count > 0)
+                .ToDictionary(
+                    e => e.Key,
+                    e => e.Value.Errors
+                        .Select(x => string.IsNullOrWhiteSpace(x.ErrorMessage) ? "Valor inválido." : x.ErrorMessage)
+                        .ToArray());
+
+            var primeira = erros.Values.SelectMany(v => v).FirstOrDefault() ?? "Dados inválidos.";
+            return new BadRequestObjectResult(new { message = primeira, mensagem = primeira, errors = erros });
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
@@ -68,6 +90,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(Politicas.Administrador, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireAssertion(context => !context.User.EhCliente() && context.User.ObterAdministradorId() > 0));
+
+    options.AddPolicy(Politicas.Cliente, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireAssertion(context => context.User.EhCliente()
+                                     && context.User.ObterClienteId() > 0
+                                     && context.User.ObterPetshopId() > 0));
+});
+
 var origensPermitidas = builder.Configuration.GetSection("Cors:Origens").Get<string[]>() ?? Array.Empty<string>();
 
 builder.Services.AddCors(options =>
@@ -105,6 +140,15 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<ILancamentoService, LancamentoService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IClienteAuthService, ClienteAuthService>();
+builder.Services.AddScoped<IPortalClienteService, PortalClienteService>();
+builder.Services.AddScoped<IVacinaService, VacinaService>();
+builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
+builder.Services.AddScoped<IAgendaService, AgendaService>();
+builder.Services.AddScoped<IConclusaoAgendamentoService, ConclusaoAgendamentoService>();
+
+if (builder.Configuration.GetValue("ConclusaoAutomatica:Habilitada", true))
+    builder.Services.AddHostedService<ConclusaoAutomaticaWorker>();
 
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IPetModeloRepository, PetModeloRepository>();
@@ -130,6 +174,10 @@ app.UseExceptionHandler(appErro => appErro.Run(async context =>
     var (status, mensagem) = erro switch
     {
         RegraDeNegocioException regra => (StatusCodes.Status400BadRequest, regra.Message),
+        ConflitoException conflito => (StatusCodes.Status409Conflict, conflito.Message),
+        AcessoNegadoException negado => (StatusCodes.Status403Forbidden, negado.Message),
+        DbUpdateException dbErro when ConclusaoAgendamentoService.EhViolacaoDeUnicidade(dbErro)
+            => (StatusCodes.Status409Conflict, "Registro duplicado: já existe um registro com estes dados."),
         DbUpdateException => (StatusCodes.Status409Conflict, "Não foi possível salvar: o registro está ligado a outros dados."),
         _ => (StatusCodes.Status500InternalServerError, "Ocorreu um erro inesperado. Tente novamente.")
     };
@@ -141,7 +189,7 @@ app.UseExceptionHandler(appErro => appErro.Run(async context =>
     }
 
     context.Response.StatusCode = status;
-    await context.Response.WriteAsJsonAsync(new { mensagem });
+    await context.Response.WriteAsJsonAsync(new RespostaErro(mensagem));
 }));
 
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Habilitado"))

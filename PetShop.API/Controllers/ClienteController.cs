@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Dto.Cliente;
 using PetShop.API.Services.Cliente;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = Politicas.Administrador)]
     public class ClienteController : ControllerBase
     {
         private readonly IClienteService _clienteService;
@@ -28,7 +29,7 @@ namespace PetShop.API.Controllers
         public async Task<ActionResult<ClienteDto>> BuscarClientePorId(int id)
         {
             var cliente = await _clienteService.BuscarClientePorId(id);
-            if (cliente == null) return NotFound("Cliente não encontrado");
+            if (cliente == null) return NotFound(new RespostaErro("Cliente não encontrado"));
             return Ok(cliente);
         }
 
@@ -43,7 +44,7 @@ namespace PetShop.API.Controllers
         public async Task<ActionResult<ClienteDto>> EditarCliente(ClienteDto dto)
         {
             var cliente = await _clienteService.EditarCliente(dto);
-            if (cliente == null) return NotFound("Cliente não encontrado");
+            if (cliente == null) return NotFound(new RespostaErro("Cliente não encontrado"));
             return Ok(cliente);
         }
 
@@ -51,7 +52,7 @@ namespace PetShop.API.Controllers
         public async Task<ActionResult> ExcluirCliente(int id)
         {
             var sucesso = await _clienteService.ExcluirCliente(id);
-            if (!sucesso) return NotFound("Cliente não encontrado");
+            if (!sucesso) return NotFound(new RespostaErro("Cliente não encontrado"));
             return NoContent();
         }
     }
