@@ -24,6 +24,7 @@ using PetShop.API.Services.Vacina;
 using PetShop.API.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddAzureWebAppDiagnostics();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
