@@ -10,12 +10,14 @@ namespace PetShop.API.Services.Pet
     {
         private readonly IPetModeloRepository _repository;
         private readonly IClienteRepository _clienteRepository;
+        private readonly IAgendamentoRepository _agendamentoRepository;
         private readonly IMapper _mapper;
 
-        public PetModeloService(IPetModeloRepository repository, IClienteRepository clienteRepository, IMapper mapper)
+        public PetModeloService(IPetModeloRepository repository, IClienteRepository clienteRepository, IAgendamentoRepository agendamentoRepository, IMapper mapper)
         {
             _repository = repository;
             _clienteRepository = clienteRepository;
+            _agendamentoRepository = agendamentoRepository;
             _mapper = mapper;
         }
 
@@ -64,6 +66,11 @@ namespace PetShop.API.Services.Pet
 
             if (pet == null)
                 return false;
+
+            var agora = DataHoraBrasil.Agora;
+            var agendamentos = await _agendamentoRepository.GetByPetIdAsync(pet.Id);
+            if (agendamentos.Any(a => a.DataHora > agora && StatusAgendamento.EstaAberto(a.Status)))
+                throw new RegraDeNegocioException("Este pet tem agendamentos futuros. Cancele-os antes de excluir o pet.");
 
             await _repository.DeleteAsync(pet);
             return true;

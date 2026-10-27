@@ -25,7 +25,6 @@ namespace PetShop.API.Services.Servico
         {
             var servico = _mapper.Map<ServicoModel>(servicoCriacaoDto);
             servico.Id = 0;
-            servico.Ativo = true; // sempre ativo ao criar
 
             await _repository.AddAsync(servico);
             return servico;
