@@ -20,7 +20,7 @@ namespace PetShop.API.Services
             _configuration = configuration;
         }
 
-        public string Login(LoginDto dto)
+        public AdminAutenticadoDto Login(LoginDto dto)
         {
             var email = NormalizarEmail(dto.Email);
 
@@ -28,10 +28,10 @@ namespace PetShop.API.Services
             if (admin == null || !BCrypt.Net.BCrypt.Verify(dto.Senha, admin.SenhaHash))
                 return null;
 
-            return GerarToken(admin);
+            return Autenticado(admin);
         }
 
-        public string Registrar(RegistroDto dto)
+        public AdminAutenticadoDto Registrar(RegistroDto dto)
         {
             var email = NormalizarEmail(dto.Email);
 
@@ -50,8 +50,16 @@ namespace PetShop.API.Services
             };
 
             _repo.Cadastrar(admin);
-            return GerarToken(admin);
+            return Autenticado(admin);
         }
+
+        // O petshop é o próprio administrador: Administrador.Id == AdministradorId das entidades da loja
+        private AdminAutenticadoDto Autenticado(AdministradorModel admin) => new AdminAutenticadoDto
+        {
+            Token = GerarToken(admin),
+            Email = admin.Email,
+            PetshopId = admin.Id
+        };
 
         public string GerarToken(AdministradorModel admin)
         {

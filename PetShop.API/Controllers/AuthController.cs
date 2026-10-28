@@ -23,21 +23,28 @@ namespace PetShop.API.Controllers
         [HttpPost("login")]
         public IActionResult Login(LoginDto dto)
         {
-            var token = _authService.Login(dto);
-            if (token == null)
+            var resultado = _authService.Login(dto);
+            if (resultado == null)
                 return Unauthorized(new RespostaErro("E-mail ou senha inválidos."));
 
-            return Ok(new { token, administrador = new { email = dto.Email } });
+            return Ok(Resposta(resultado));
         }
 
         [HttpPost("registrar")]
         public IActionResult Registrar(RegistroDto dto)
         {
-            var token = _authService.Registrar(dto);
-            if (token == null)
+            var resultado = _authService.Registrar(dto);
+            if (resultado == null)
                 return BadRequest(new RespostaErro("E-mail já cadastrado."));
 
-            return Created("", new { token, administrador = new { email = dto.Email } });
+            return Created("", Resposta(resultado));
         }
+
+        private static object Resposta(AdminAutenticadoDto r) => new
+        {
+            token = r.Token,
+            administrador = new { email = r.Email },
+            petshopId = r.PetshopId
+        };
     }
 }

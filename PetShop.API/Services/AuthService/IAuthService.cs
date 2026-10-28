@@ -6,8 +6,8 @@ namespace PetShop.API.Services
 {
     public interface IAuthService
     {
-        string Login(LoginDto dto);
-        string Registrar(RegistroDto dto);
+        AdminAutenticadoDto Login(LoginDto dto);
+        AdminAutenticadoDto Registrar(RegistroDto dto);
         string GerarToken(AdministradorModel admin);
     }
 }
