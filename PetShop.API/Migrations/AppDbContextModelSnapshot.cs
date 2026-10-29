@@ -88,6 +88,64 @@ namespace PetShop.API.Migrations
                     b.ToTable("Agendamentos");
                 });
 
+            modelBuilder.Entity("PetShop.API.Models.AssinaturaModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdministradorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AssinaturaExternaId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("AtivadaEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CanceladaEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CheckoutId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CriadaEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("PagoAte")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Plano")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("RenovacaoCancelada")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdministradorId");
+
+                    b.HasIndex("CheckoutId")
+                        .IsUnique()
+                        .HasFilter("[CheckoutId] IS NOT NULL");
+
+                    b.ToTable("Assinaturas");
+                });
+
             modelBuilder.Entity("PetShop.API.Models.ClienteModel", b =>
                 {
                     b.Property<int>("Id")
@@ -196,6 +254,34 @@ namespace PetShop.API.Migrations
                         .IsUnique();
 
                     b.ToTable("ConfiguracoesLoja");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.EventoPagamentoModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Evento")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EventoId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("RecebidoEm")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventoId")
+                        .IsUnique();
+
+                    b.ToTable("EventosPagamento");
                 });
 
             modelBuilder.Entity("PetShop.API.Models.LancamentoModel", b =>
@@ -434,6 +520,15 @@ namespace PetShop.API.Migrations
                     b.Navigation("Pet");
 
                     b.Navigation("Servico");
+                });
+
+            modelBuilder.Entity("PetShop.API.Models.AssinaturaModel", b =>
+                {
+                    b.HasOne("PetShop.API.Models.AdministradorModel", null)
+                        .WithMany()
+                        .HasForeignKey("AdministradorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PetShop.API.Models.ClienteModel", b =>

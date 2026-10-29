@@ -24,6 +24,8 @@ namespace PetShop.API.Data
         public DbSet<LancamentoModel> Lancamentos { get; set; }
         public DbSet<VacinaModel> Vacinas { get; set; }
         public DbSet<ConfiguracaoLojaModel> ConfiguracoesLoja { get; set; }
+        public DbSet<AssinaturaModel> Assinaturas { get; set; }
+        public DbSet<EventoPagamentoModel> EventosPagamento { get; set; }
 
         public int AdministradorIdAtual
             => _httpContextAccessor?.HttpContext?.User?.ObterAdministradorId() ?? 0;
@@ -120,6 +122,52 @@ namespace PetShop.API.Data
                 .Property(c => c.DiasFuncionamento)
                 .HasMaxLength(20);
 
+            modelBuilder.Entity<AssinaturaModel>()
+                .HasOne<AdministradorModel>()
+                .WithMany()
+                .HasForeignKey(a => a.AdministradorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AssinaturaModel>()
+                .Property(a => a.Valor)
+                .HasColumnType("decimal(10,2)");
+
+            modelBuilder.Entity<AssinaturaModel>()
+                .Property(a => a.Plano)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            modelBuilder.Entity<AssinaturaModel>()
+                .Property(a => a.Status)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            modelBuilder.Entity<AssinaturaModel>()
+                .Property(a => a.CheckoutId)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<AssinaturaModel>()
+                .Property(a => a.AssinaturaExternaId)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<AssinaturaModel>()
+                .HasIndex(a => a.CheckoutId)
+                .IsUnique()
+                .HasFilter("[CheckoutId] IS NOT NULL");
+
+            modelBuilder.Entity<EventoPagamentoModel>()
+                .Property(e => e.EventoId)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelBuilder.Entity<EventoPagamentoModel>()
+                .Property(e => e.Evento)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<EventoPagamentoModel>()
+                .HasIndex(e => e.EventoId)
+                .IsUnique();
+
             modelBuilder.Entity<ClienteModel>()
                 .HasQueryFilter(c => c.AdministradorId == AdministradorIdAtual);
 
@@ -143,6 +191,9 @@ namespace PetShop.API.Data
 
             modelBuilder.Entity<ConfiguracaoLojaModel>()
                 .HasQueryFilter(c => c.AdministradorId == AdministradorIdAtual);
+
+            modelBuilder.Entity<AssinaturaModel>()
+                .HasQueryFilter(a => a.AdministradorId == AdministradorIdAtual);
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
