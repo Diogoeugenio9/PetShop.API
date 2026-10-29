@@ -151,6 +151,8 @@ builder.Services.AddScoped<IAgendaService, AgendaService>();
 builder.Services.AddScoped<IConclusaoAgendamentoService, ConclusaoAgendamentoService>();
 builder.Services.AddHttpClient<IAbacatePayClient, AbacatePayClient>();
 builder.Services.AddScoped<IAssinaturaService, AssinaturaService>();
+builder.Services.AddScoped<IWebhookPagamentoService, WebhookPagamentoService>();
+builder.Services.AddHostedService<RenovacaoAssinaturaWorker>();
 
 if (builder.Configuration.GetValue("ConclusaoAutomatica:Habilitada", true))
     builder.Services.AddHostedService<ConclusaoAutomaticaWorker>();

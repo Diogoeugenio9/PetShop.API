@@ -18,10 +18,28 @@ namespace PetShop.API.Controllers
             _assinaturaService = assinaturaService;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<AssinaturaDto>> Obter()
+        {
+            return Ok(await _assinaturaService.Obter(User.ObterAdministradorId()));
+        }
+
         [HttpPost("checkout")]
         public async Task<ActionResult<CheckoutCriadoDto>> CriarCheckout(CheckoutAssinaturaDto dto)
         {
             return Ok(await _assinaturaService.CriarCheckout(User.ObterAdministradorId(), dto.Plano));
+        }
+
+        [HttpPost("cancelar-renovacao")]
+        public async Task<ActionResult<AssinaturaDto>> CancelarRenovacao()
+        {
+            return Ok(await _assinaturaService.CancelarRenovacao(User.ObterAdministradorId()));
+        }
+
+        [HttpPost("reativar-renovacao")]
+        public async Task<ActionResult<AssinaturaDto>> ReativarRenovacao()
+        {
+            return Ok(await _assinaturaService.ReativarRenovacao(User.ObterAdministradorId()));
         }
     }
 }
