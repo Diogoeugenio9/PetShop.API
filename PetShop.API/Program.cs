@@ -16,6 +16,7 @@ using PetShop.API.Services.Configuracao;
 using PetShop.API.Services.Cliente;
 using PetShop.API.Services.Dashboard;
 using PetShop.API.Services.Lancamento;
+using PetShop.API.Services.Pagamento;
 using PetShop.API.Services.Pet;
 using PetShop.API.Services.Portal;
 using PetShop.API.Services.Produto;
@@ -147,6 +148,7 @@ builder.Services.AddScoped<IVacinaService, VacinaService>();
 builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
 builder.Services.AddScoped<IAgendaService, AgendaService>();
 builder.Services.AddScoped<IConclusaoAgendamentoService, ConclusaoAgendamentoService>();
+builder.Services.AddHttpClient<IAbacatePayClient, AbacatePayClient>();
 
 if (builder.Configuration.GetValue("ConclusaoAutomatica:Habilitada", true))
     builder.Services.AddHostedService<ConclusaoAutomaticaWorker>();
