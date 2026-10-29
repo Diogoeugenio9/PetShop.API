@@ -1,11 +1,15 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Services.Pagamento
 {
     public class AbacatePayClient : IAbacatePayClient
     {
+        private static readonly JsonSerializerOptions SemNulos = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
         private readonly HttpClient _http;
         private readonly ILogger<AbacatePayClient> _logger;
 
@@ -80,7 +84,7 @@ namespace PetShop.API.Services.Pagamento
         {
             using var requisicao = new HttpRequestMessage(metodo, caminho);
             if (corpo != null)
-                requisicao.Content = JsonContent.Create(corpo);
+                requisicao.Content = JsonContent.Create(corpo, options: SemNulos);
 
             using var resposta = await _http.SendAsync(requisicao);
             var conteudo = await resposta.Content.ReadAsStringAsync();
@@ -93,7 +97,7 @@ namespace PetShop.API.Services.Pagamento
             catch (JsonException)
             {
                 _logger.LogError("Resposta inválida do AbacatePay em {Caminho}: {Status}", caminho, (int)resposta.StatusCode);
-                throw new InvalidOperationException("O serviço de pagamento retornou uma resposta inválida.");
+                throw new PagamentoIndisponivelException("O serviço de pagamento retornou uma resposta inválida.");
             }
 
             var sucesso = raiz.TryGetProperty("success", out var s) && s.ValueKind == JsonValueKind.True;
@@ -101,7 +105,7 @@ namespace PetShop.API.Services.Pagamento
             {
                 var erro = raiz.TryGetProperty("error", out var e) && e.ValueKind == JsonValueKind.String ? e.GetString() : null;
                 _logger.LogError("AbacatePay recusou {Caminho}: {Status} {Erro}", caminho, (int)resposta.StatusCode, erro);
-                throw new InvalidOperationException("Não foi possível falar com o serviço de pagamento.");
+                throw new PagamentoIndisponivelException("Não foi possível falar com o serviço de pagamento.");
             }
 
             return raiz.TryGetProperty("data", out var data) ? data : default;

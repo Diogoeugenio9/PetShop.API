@@ -11,6 +11,7 @@ using PetShop.API.Repository.Interface;
 using PetShop.API.Services;
 using PetShop.API.Services.Agenda;
 using PetShop.API.Services.Agendamento;
+using PetShop.API.Services.Assinatura;
 using PetShop.API.Services.ClienteAutenticacao;
 using PetShop.API.Services.Configuracao;
 using PetShop.API.Services.Cliente;
@@ -149,6 +150,7 @@ builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
 builder.Services.AddScoped<IAgendaService, AgendaService>();
 builder.Services.AddScoped<IConclusaoAgendamentoService, ConclusaoAgendamentoService>();
 builder.Services.AddHttpClient<IAbacatePayClient, AbacatePayClient>();
+builder.Services.AddScoped<IAssinaturaService, AssinaturaService>();
 
 if (builder.Configuration.GetValue("ConclusaoAutomatica:Habilitada", true))
     builder.Services.AddHostedService<ConclusaoAutomaticaWorker>();
@@ -179,13 +181,14 @@ app.UseExceptionHandler(appErro => appErro.Run(async context =>
         RegraDeNegocioException regra => (StatusCodes.Status400BadRequest, regra.Message),
         ConflitoException conflito => (StatusCodes.Status409Conflict, conflito.Message),
         AcessoNegadoException negado => (StatusCodes.Status403Forbidden, negado.Message),
+        PagamentoIndisponivelException pagamento => (StatusCodes.Status502BadGateway, pagamento.Message),
         DbUpdateException dbErro when ConclusaoAgendamentoService.EhViolacaoDeUnicidade(dbErro)
             => (StatusCodes.Status409Conflict, "Registro duplicado: já existe um registro com estes dados."),
         DbUpdateException => (StatusCodes.Status409Conflict, "Não foi possível salvar: o registro está ligado a outros dados."),
         _ => (StatusCodes.Status500InternalServerError, "Ocorreu um erro inesperado. Tente novamente.")
     };
 
-    if (status == StatusCodes.Status500InternalServerError || erro is DbUpdateException)
+    if (status == StatusCodes.Status500InternalServerError || erro is DbUpdateException or PagamentoIndisponivelException)
     {
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
         logger.LogError(erro, "Erro ao processar {Metodo} {Caminho}", context.Request.Method, context.Request.Path);
