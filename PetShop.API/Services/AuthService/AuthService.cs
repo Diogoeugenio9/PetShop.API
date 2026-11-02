@@ -6,6 +6,7 @@ using PetShop.API.Repository.Interface;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Services
 {
@@ -19,7 +20,7 @@ namespace PetShop.API.Services
             _repo = repo;
             _configuration = configuration;
         }
-
+        
         public AdminAutenticadoDto Login(LoginDto dto)
         {
             var email = NormalizarEmail(dto.Email);
@@ -38,6 +39,8 @@ namespace PetShop.API.Services
             if (_repo.ExisteEmail(email))
                 return null;
 
+            var agora = DateTime.UtcNow;
+
             var admin = new AdministradorModel
             {
                 NomeProprietario = dto.NomeProprietario?.Trim(),
@@ -46,7 +49,10 @@ namespace PetShop.API.Services
                 Cidade = dto.Cidade?.Trim(),
                 Estado = dto.Estado?.Trim(),
                 Email = email,
-                SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
+                CriadoEmUtc = agora,
+                TesteIniciadoEmUtc = agora,
+                TesteTerminaEmUtc = agora.Add(PeriodoTeste.Duracao)
             };
 
             _repo.Cadastrar(admin);

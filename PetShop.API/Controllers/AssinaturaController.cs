@@ -9,6 +9,7 @@ namespace PetShop.API.Controllers
     [Route("api/admin/assinatura")]
     [ApiController]
     [Authorize(Policy = Politicas.Administrador)]
+    [LiberadoSemAssinatura]
     public class AssinaturaController : ControllerBase
     {
         private readonly IAssinaturaService _assinaturaService;

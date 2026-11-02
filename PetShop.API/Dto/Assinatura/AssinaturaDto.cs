@@ -11,5 +11,10 @@ namespace PetShop.API.Dto.Assinatura
 
         [JsonPropertyName("periodEndsAt")]
         public DateTime? PagoAte { get; set; }
+
+        public DateTime? TesteIniciadoEm { get; set; }
+        public DateTime? TesteTerminaEm { get; set; }
+        public bool EmPeriodoTeste { get; set; }
+        public bool AcessoPermitido { get; set; }
     }
 }

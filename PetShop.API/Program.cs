@@ -28,7 +28,7 @@ using PetShop.API.Utils;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddAzureWebAppDiagnostics();
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options => options.Filters.Add<AcessoPetshopFilter>())
     .ConfigureApiBehaviorOptions(options =>
     {
         options.InvalidModelStateResponseFactory = context =>

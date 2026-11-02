@@ -11,6 +11,7 @@ namespace PetShop.API.Controllers
     [ApiController]
     [Route("api/admin/autenticacao")]
     [EnableRateLimiting("autenticacao")]
+    [LiberadoSemAssinatura]
     public class AutenticacaoController : ControllerBase
     {
         private readonly IAuthService _authService;

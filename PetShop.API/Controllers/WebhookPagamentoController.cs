@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetShop.API.Services.Pagamento;
+using PetShop.API.Utils;
 
 namespace PetShop.API.Controllers
 {
@@ -8,6 +9,7 @@ namespace PetShop.API.Controllers
     [ApiController]
     [AllowAnonymous]
     [ApiExplorerSettings(IgnoreApi = true)]
+    [LiberadoSemAssinatura]
     public class WebhookPagamentoController : ControllerBase
     {
         private readonly IWebhookPagamentoService _webhookService;

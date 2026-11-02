@@ -27,19 +27,28 @@ namespace PetShop.API.Services.Assinatura
         public async Task<AssinaturaDto> Obter(int administradorId)
         {
             var vigente = await BuscarVigente(administradorId);
-            if (vigente != null)
-                return ParaDto(vigente, vigente.Status);
+            var dto = vigente != null
+                ? ParaDto(vigente, vigente.Status)
+                : await UltimaSemVigencia(administradorId);
 
-            var ultima = await _context.Assinaturas
-                .Where(a => a.AdministradorId == administradorId)
-                .OrderByDescending(a => a.CriadaEm)
-                .FirstOrDefaultAsync();
+            var teste = await BuscarTeste(administradorId);
+            var testeValido = teste != null && DateTime.UtcNow < teste.Value.Termino;
 
-            if (ultima == null)
-                return new AssinaturaDto();
+            dto.TesteIniciadoEm = teste?.Inicio;
+            dto.TesteTerminaEm = teste?.Termino;
+            dto.EmPeriodoTeste = vigente == null && testeValido;
+            dto.AcessoPermitido = vigente != null || testeValido;
 
-            var status = ultima.Status == StatusAssinatura.Ativa ? StatusAssinatura.Expirada : ultima.Status;
-            return ParaDto(ultima, status);
+            return dto;
+        }
+
+        public async Task<bool> AcessoPermitido(int administradorId)
+        {
+            var teste = await BuscarTeste(administradorId);
+            if (teste != null && DateTime.UtcNow < teste.Value.Termino)
+                return true;
+
+            return await BuscarVigente(administradorId) != null;
         }
 
         public async Task<CheckoutCriadoDto> CriarCheckout(int administradorId, string plano)
@@ -149,6 +158,35 @@ namespace PetShop.API.Services.Assinatura
             }
 
             return encerradas;
+        }
+
+        private async Task<AssinaturaDto> UltimaSemVigencia(int administradorId)
+        {
+            var ultima = await _context.Assinaturas
+                .Where(a => a.AdministradorId == administradorId)
+                .OrderByDescending(a => a.CriadaEm)
+                .FirstOrDefaultAsync();
+
+            if (ultima == null)
+                return new AssinaturaDto();
+
+            var status = ultima.Status == StatusAssinatura.Ativa ? StatusAssinatura.Expirada : ultima.Status;
+            return ParaDto(ultima, status);
+        }
+
+        private async Task<(DateTime Inicio, DateTime Termino)?> BuscarTeste(int administradorId)
+        {
+            var admin = await _context.Administradores
+                .AsNoTracking()
+                .Where(a => a.Id == administradorId)
+                .Select(a => new { a.TesteIniciadoEmUtc, a.TesteTerminaEmUtc })
+                .FirstOrDefaultAsync();
+
+            if (admin == null)
+                return null;
+
+            return (DateTime.SpecifyKind(admin.TesteIniciadoEmUtc, DateTimeKind.Utc),
+                    DateTime.SpecifyKind(admin.TesteTerminaEmUtc, DateTimeKind.Utc));
         }
 
         private async Task<AssinaturaModel> BuscarMensalVigente(int administradorId)

@@ -33,6 +33,9 @@ namespace PetShop.API.Migrations
                     b.Property<string>("Cidade")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("CriadoEmUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -50,6 +53,12 @@ namespace PetShop.API.Migrations
 
                     b.Property<string>("Telefone")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TesteIniciadoEmUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TesteTerminaEmUtc")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
